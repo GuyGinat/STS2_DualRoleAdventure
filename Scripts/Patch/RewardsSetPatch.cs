@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Rewards;
 using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.TestSupport;
 
 namespace LocalMultiControl.Scripts.Patch;
@@ -41,7 +42,6 @@ internal static class RewardsSetPatch
             return;
         }
 
-        await Hook.BeforeRewardsOffered(rewardsSet.Player.RunState, rewardsSet.Player, rewardsSet.Rewards);
         if (!rewardsSet.Rewards.All((reward) => reward.IsPopulated) && rewardsSet.Rewards.Any((reward) => reward.IsPopulated))
         {
             Log.Warn("Some rewards are populated and others are not when calling RewardsCmd.Offer! This might lead to hooks getting called twice");
@@ -49,19 +49,20 @@ internal static class RewardsSetPatch
 
         LocalMultiControlRuntime.SwitchControlledPlayerTo(rewardsSet.Player.NetId, "rewards-offer");
         LocalMultiControlLogger.Info($"打开奖励界面: player={rewardsSet.Player.NetId}, count={rewardsSet.Rewards.Count}");
+        Task rewardsSetTask = RunManager.Instance.RewardsSetSynchronizer.BeginRewardsSet(rewardsSet);
 
         if (TestMode.IsOn)
         {
             foreach (Reward reward in rewardsSet.Rewards)
             {
-                await reward.OnSelectWrapper();
+                await RunManager.Instance.RewardsSetSynchronizer.SelectLocalReward(reward);
             }
 
+            await rewardsSetTask;
             return;
         }
 
-        NRewardsScreen rewardScreen = NRewardsScreen.ShowScreen(isTerminal, rewardsSet.Player.RunState);
-        rewardScreen.SetRewards(rewardsSet.Rewards);
-        await rewardScreen.ClosedTask;
+        NRewardsScreen.ShowScreen(rewardsSet, isTerminal, rewardsSet.Player.RunState);
+        await rewardsSetTask;
     }
 }

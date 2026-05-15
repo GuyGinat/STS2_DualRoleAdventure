@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using HarmonyLib;
 using LocalMultiControl.Scripts.Runtime;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
@@ -37,7 +39,10 @@ internal static class StartRunLobbySetReadyPatch
         bool beginningRun = AccessTools.Field(typeof(StartRunLobby), "_isBeginningRun")?.GetValue(__instance) as bool? ?? false;
         if (!beginningRun)
         {
-            AccessTools.Method(typeof(StartRunLobby), "BeginRunIfAllPlayersReady")?.Invoke(__instance, new object[] { });
+            MethodInfo? beginRunIfReadyMethod =
+                AccessTools.Method(typeof(StartRunLobby), "BeginRunForAllPlayersIfAllReady")
+                ?? AccessTools.Method(typeof(StartRunLobby), "BeginRunIfAllPlayersReady");
+            beginRunIfReadyMethod?.Invoke(__instance, Array.Empty<object>());
         }
     }
 }

@@ -24,7 +24,7 @@ internal static class ToolboxPatch
         Toolbox __instance,
         Player player,
         PlayerChoiceContext choiceContext,
-        CombatState combatState,
+        ICombatState combatState,
         ref Task __result)
     {
         if (!ShouldAutoPickFirstCard(__instance, player, out string reason))
@@ -45,7 +45,7 @@ internal static class ToolboxPatch
             return false;
         }
 
-        CombatState? combatState = player.Creature.CombatState;
+        ICombatState? combatState = player.Creature.CombatState;
         if (combatState == null || combatState.RoundNumber != 1)
         {
             return false;
@@ -82,7 +82,7 @@ internal static class ToolboxPatch
         CardModel? pickedCard = cards.FirstOrDefault();
         if (pickedCard != null)
         {
-            await CardPileCmd.AddGeneratedCardToCombat(pickedCard, PileType.Hand, addedByPlayer: true);
+            await CardPileCmd.AddGeneratedCardToCombat(pickedCard, PileType.Hand, relic.Owner);
             LocalMultiControlLogger.Info($"工具箱已自动选择首张卡: player={player.NetId}, card={pickedCard.Id.Entry}");
         }
     }

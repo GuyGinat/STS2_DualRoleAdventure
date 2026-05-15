@@ -74,7 +74,7 @@ internal static class LocalWakuuRelicRuntime
             return;
         }
 
-        CombatState? combatState = player.Creature.CombatState;
+        ICombatState? combatState = player.Creature.CombatState;
         if (combatState == null || CombatManager.Instance.IsOverOrEnding)
         {
             return;
@@ -201,7 +201,7 @@ internal static class LocalWakuuRelicRuntime
             return false;
         }
 
-        CombatState? combatState = player.Creature.CombatState;
+        ICombatState? combatState = player.Creature.CombatState;
         if (combatState == null || combatState.CurrentSide != CombatSide.Player || CombatManager.Instance.IsOverOrEnding)
         {
             reason = "invalid-combat-state";
@@ -248,7 +248,7 @@ internal static class LocalWakuuRelicRuntime
         string key,
         LocalWakuuStarterRelic relic,
         Player player,
-        CombatState combatState,
+        ICombatState combatState,
         string source)
     {
         ulong? previousNetId = LocalContext.NetId;
@@ -403,7 +403,7 @@ internal static class LocalWakuuRelicRuntime
         return true;
     }
 
-    private static Creature? ResolveTarget(CardModel card, CombatState combatState, Player owner)
+    private static Creature? ResolveTarget(CardModel card, ICombatState combatState, Player owner)
     {
         return card.TargetType switch
         {
@@ -429,7 +429,7 @@ internal static class LocalWakuuRelicRuntime
         LocalMultiControlRuntime.SwitchControlledPlayerTo(player.NetId, $"wakuu-{source}");
     }
 
-    private static bool TryGetAutoplayUnsafeReason(CombatState combatState, out string reason)
+    private static bool TryGetAutoplayUnsafeReason(ICombatState combatState, out string reason)
     {
         reason = string.Empty;
         if (!RunManager.Instance.IsInProgress || !CombatManager.Instance.IsInProgress || CombatManager.Instance.IsOverOrEnding)
