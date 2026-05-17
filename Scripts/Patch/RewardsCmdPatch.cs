@@ -31,6 +31,13 @@ internal static class RewardsCmdPatch
             return true;
         }
 
+        if (!CombatRewardMergeContext.TryMarkRoomMerged(room))
+        {
+            LocalMultiControlLogger.Info($"检测到重复战后奖励调用，已忽略: player={player.NetId}, room={room.RoomType}");
+            __result = Task.CompletedTask;
+            return false;
+        }
+
         __result = OfferMergedRewardsForAllPlayers(combatRoom);
         return false;
     }
