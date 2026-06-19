@@ -1,0 +1,10 @@
+{
+  "title": "本地多角色(LocalMultiControl)V1.20",
+  "description": "将联网控制流程改造为本地多角色可切换操控，支持单机多人协作体验。",
+  "visibility": "public",
+  "changeNote": "初始化创意工坊上传工作区",
+  "tags": [
+    "gameplay"
+  ],
+  "dependencies": []
+}

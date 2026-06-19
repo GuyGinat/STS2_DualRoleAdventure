@@ -226,6 +226,7 @@
   - 纯单行英文文本；
   - 不使用 `\n`、不换行、不过度技术化；
   - 回传给用户时必须可直接复制粘贴到发布平台。
+- 游戏已支持创意工坊，每次发版时同步使用 C:\WorkshopUploader 中的 SteamCMD ，创意工坊标题名格式为： 本地多角色(LocalMultiControl)Vx.xx  后面是版本号，描述为主要功能描述；上传规范参考C:\Users\temp\项目\杀戮尖塔2Mod\Slay the Spire 2\src\sts2-mod-uploader； 上传时先更新 workshop 内容
 
 ## 19. 玩家更新文档维护（新增）
 
