@@ -31,6 +31,13 @@ internal static class RewardsCmdPatch
             return true;
         }
 
+        if (!CombatRewardMergeContext.TryMarkRoomMerged(room))
+        {
+            LocalMultiControlLogger.Info($"检测到重复战后奖励调用，已忽略: player={player.NetId}, room={room.RoomType}");
+            __result = Task.CompletedTask;
+            return false;
+        }
+
         __result = OfferMergedRewardsForAllPlayers(combatRoom);
         return false;
     }
@@ -75,7 +82,6 @@ internal static class RewardsCmdPatch
 
             // 调用 GenerateWithoutOffering 触发 Populate + Hook.ModifyRewards
             await perPlayerSet.GenerateWithoutOffering();
-            await Hook.BeforeRewardsOffered(player.RunState, player, perPlayerSet.Rewards);
 
             // 为每个奖励注册角色标签
             foreach (Reward reward in perPlayerSet.Rewards)
@@ -91,20 +97,20 @@ internal static class RewardsCmdPatch
         // 切换到第一个存活角色的控制上下文来展示奖励界面
         Player? displayPlayer = allPlayers.FirstOrDefault((p) => p.Creature?.IsDead != true) ?? allPlayers[0];
         LocalMultiControlRuntime.SwitchControlledPlayerTo(displayPlayer.NetId, "merged-rewards-offer");
+        RewardsSet displaySet = new RewardsSet(displayPlayer).WithCustomRewards(mergedRewards);
 
         if (TestMode.IsOn)
         {
             foreach (Reward reward in mergedRewards)
             {
-                await reward.OnSelectWrapper();
+                await reward.SelectUnsynchronized();
             }
 
             return;
         }
 
         bool isTerminal = true; // CombatRoom 的奖励界面始终是 terminal
-        NRewardsScreen rewardScreen = NRewardsScreen.ShowScreen(isTerminal, displayPlayer.RunState);
-        rewardScreen.SetRewards(mergedRewards);
-        await rewardScreen.ClosedTask;
+        NRewardsScreen rewardScreen = NRewardsScreen.ShowScreen(displaySet, isTerminal, displayPlayer.RunState);
+        await rewardScreen.ToSignal(rewardScreen, NRewardsScreen.SignalName.Completed);
     }
 }

@@ -479,6 +479,7 @@ internal static class LocalMultiControlRuntime
             ? LocalSelfCoopContext.PrimaryPlayerId
             : playerId;
         TrySetLocalPlayerId(RunManager.Instance.EventSynchronizer, eventOwnerPlayerId, nameof(RunManager.EventSynchronizer));
+        TrySetLocalPlayerId(RunManager.Instance.RewardsSetSynchronizer, playerId, nameof(RunManager.RewardsSetSynchronizer));
         TrySetLocalPlayerId(RunManager.Instance.RewardSynchronizer, playerId, nameof(RunManager.RewardSynchronizer));
         TrySetLocalPlayerId(RunManager.Instance.RestSiteSynchronizer, playerId, nameof(RunManager.RestSiteSynchronizer));
         TrySetLocalPlayerId(RunManager.Instance.OneOffSynchronizer, playerId, nameof(RunManager.OneOffSynchronizer));
@@ -1577,13 +1578,27 @@ internal static class LocalMultiControlRuntime
             return false;
         }
 
-        List<int?>? votes = AccessTools.Field(typeof(TreasureRoomRelicSynchronizer), "_votes")?.GetValue(synchronizer) as List<int?>;
-        if (votes == null || votes.Count == 0)
+        object? votesObject = AccessTools.Field(typeof(TreasureRoomRelicSynchronizer), "_votes")?.GetValue(synchronizer);
+        if (votesObject is not System.Collections.IEnumerable votesEnumerable)
         {
             return false;
         }
 
-        return votes.Any((vote) => !vote.HasValue);
+        foreach (object? vote in votesEnumerable)
+        {
+            if (vote == null)
+            {
+                return true;
+            }
+
+            bool? voteReceived = AccessTools.Field(vote.GetType(), "voteReceived")?.GetValue(vote) as bool?;
+            if (voteReceived == false)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

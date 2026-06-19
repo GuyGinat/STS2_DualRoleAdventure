@@ -50,7 +50,7 @@ internal static class LoadRunLobbyPatch
                 }
             }
 
-            AccessTools.Method(typeof(LoadRunLobby), "BeginRunIfAllPlayersReady")?.Invoke(__instance, new object[] { });
+            InvokeBeginRunIfAllPlayersReady(__instance);
             LocalMultiControlLogger.Info($"本地多控读档自动就绪: players={string.Join(",", localPlayerIdsInRun)}");
             return;
         }
@@ -72,5 +72,22 @@ internal static class LoadRunLobbyPatch
                 __instance.LobbyListener.PlayerReadyChanged(playerId);
             }
         }
+    }
+
+    private static void InvokeBeginRunIfAllPlayersReady(LoadRunLobby lobby)
+    {
+        if (AccessTools.Method(typeof(LoadRunLobby), "BeginRunForAllPlayersIfAllReady") is { } beginRunNew)
+        {
+            beginRunNew.Invoke(lobby, new object[] { });
+            return;
+        }
+
+        if (AccessTools.Method(typeof(LoadRunLobby), "BeginRunIfAllPlayersReady") is { } beginRunLegacy)
+        {
+            beginRunLegacy.Invoke(lobby, new object[] { });
+            return;
+        }
+
+        LocalMultiControlLogger.Warn("读档自动开局失败：未找到 BeginRunIfAllPlayersReady/BeginRunForAllPlayersIfAllReady。");
     }
 }

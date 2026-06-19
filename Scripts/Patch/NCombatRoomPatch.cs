@@ -19,9 +19,16 @@ internal static class NCombatRoomPatch
 
         LocalMultiControlRuntime.SwitchControlledPlayerTo(LocalSelfCoopContext.PrimaryPlayerId, "combat-setup");
         LocalMultiControlRuntime.RefreshSharedTopBarForCombat("combat-setup");
+        LocalMultiControlRuntime.RefreshCombatEnergyForCurrentPlayer("combat-setup");
         Callable.From(delegate
         {
             LocalMultiControlRuntime.RefreshSharedTopBarForCombat("combat-setup-deferred");
+            LocalMultiControlRuntime.RefreshCombatEnergyForCurrentPlayer("combat-setup-deferred");
+
+            Callable.From(delegate
+            {
+                LocalMultiControlRuntime.RefreshCombatEnergyForCurrentPlayer("combat-setup-deferred-2");
+            }).CallDeferred();
         }).CallDeferred();
     }
 }

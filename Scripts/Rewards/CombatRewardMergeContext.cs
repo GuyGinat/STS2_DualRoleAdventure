@@ -1,3 +1,6 @@
+using System.Runtime.CompilerServices;
+using MegaCrit.Sts2.Core.Rooms;
+
 namespace LocalMultiControl.Scripts.Rewards;
 
 /// <summary>
@@ -8,9 +11,28 @@ namespace LocalMultiControl.Scripts.Rewards;
 /// </summary>
 internal static class CombatRewardMergeContext
 {
+    private sealed class MergeMarker
+    {
+    }
+
     private static int _depth;
+    private static readonly ConditionalWeakTable<AbstractRoom, MergeMarker> MergedRooms = new();
 
     internal static bool IsActive => _depth > 0;
+
+    internal static bool TryMarkRoomMerged(AbstractRoom room)
+    {
+        lock (MergedRooms)
+        {
+            if (MergedRooms.TryGetValue(room, out _))
+            {
+                return false;
+            }
+
+            MergedRooms.Add(room, new MergeMarker());
+            return true;
+        }
+    }
 
     internal static void Enter()
     {

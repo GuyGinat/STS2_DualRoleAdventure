@@ -3,7 +3,7 @@ using MegaCrit.Sts2.Core.Models.Relics;
 
 namespace LocalMultiControl.Scripts.Patch;
 
-[HarmonyPatch(typeof(WhisperingEarring), nameof(WhisperingEarring.BeforePlayPhaseStartLate))]
+[HarmonyPatch(typeof(WhisperingEarring), nameof(WhisperingEarring.AfterAutoPrePlayPhaseEnteredLate))]
 internal static class WhisperingEarringPatch
 {
     [HarmonyPrefix]

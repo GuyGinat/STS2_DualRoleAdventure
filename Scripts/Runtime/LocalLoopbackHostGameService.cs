@@ -18,9 +18,13 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
 {
     private readonly Dictionary<Type, List<Delegate>> _handlers = new();
 
+    private readonly List<Action> _bufferedDispatches = new();
+
     private readonly List<NetClientData> _connectedPeers = new();
 
     private ulong _currentSenderId;
+
+    private bool _isBufferingMessages;
 
     public LocalLoopbackHostGameService(ulong hostPlayerId)
     {
@@ -100,6 +104,13 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
 
     public void DispatchLoopback<T>(T message, ulong senderId) where T : INetMessage
     {
+        if (_isBufferingMessages && message.ShouldBuffer)
+        {
+            _bufferedDispatches.Add(() => DispatchLoopback(message, senderId));
+            LocalMultiControlLogger.Info($"本地回环消息进入缓冲: {typeof(T).Name}, sender={senderId}, buffered={_bufferedDispatches.Count}");
+            return;
+        }
+
         Type messageType = typeof(T);
         if (!_handlers.TryGetValue(messageType, out List<Delegate>? handlers) || handlers.Count == 0)
         {
@@ -142,6 +153,29 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
     {
         IsGameLoading = isLoading;
         LocalMultiControlLogger.Info($"本地回环加载状态更新: {isLoading}");
+    }
+
+    public void SetBufferMessages(bool bufferMessages)
+    {
+        if (_isBufferingMessages == bufferMessages)
+        {
+            return;
+        }
+
+        _isBufferingMessages = bufferMessages;
+        if (bufferMessages)
+        {
+            LocalMultiControlLogger.Info("本地回环开始缓冲消息");
+            return;
+        }
+
+        List<Action> bufferedDispatches = new(_bufferedDispatches);
+        _bufferedDispatches.Clear();
+        LocalMultiControlLogger.Info($"本地回环释放缓冲消息: count={bufferedDispatches.Count}");
+        foreach (Action dispatch in bufferedDispatches)
+        {
+            dispatch();
+        }
     }
 
     public string? GetRawLobbyIdentifier()

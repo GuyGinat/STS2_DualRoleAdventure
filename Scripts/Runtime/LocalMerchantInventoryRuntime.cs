@@ -58,6 +58,25 @@ internal static class LocalMerchantInventoryRuntime
         return inventory;
     }
 
+    public static void BindInventoryToRoom(MerchantRoom room, Player player, MerchantInventory inventory)
+    {
+        IRunState? runState = player.RunState;
+        if (runState == null)
+        {
+            return;
+        }
+
+        int playerSlotIndex = runState.GetPlayerSlotIndex(player);
+        if (playerSlotIndex < 0 || playerSlotIndex >= room.Inventories.Count)
+        {
+            LocalMultiControlLogger.Warn(
+                $"商店库存绑定失败：角色槽位越界。player={player.NetId}, slot={playerSlotIndex}, inventoryCount={room.Inventories.Count}");
+            return;
+        }
+
+        room.Inventories[playerSlotIndex] = inventory;
+    }
+
     public static void RefreshShopRoomForPlayer(ulong playerId)
     {
         RunState? runState = RunManager.Instance.DebugOnlyGetState();
@@ -73,7 +92,7 @@ internal static class LocalMerchantInventoryRuntime
         }
 
         MerchantInventory inventory = GetOrCreateInventory(merchantRoom, player);
-        AccessTools.PropertySetter(typeof(MerchantRoom), nameof(MerchantRoom.Inventory))?.Invoke(merchantRoom, new object[] { inventory });
+        BindInventoryToRoom(merchantRoom, player, inventory);
 
         NMerchantRoom? roomNode = NMerchantRoom.Instance;
         if (roomNode == null)

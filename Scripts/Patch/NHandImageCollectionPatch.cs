@@ -35,18 +35,18 @@ internal static class NHandImageCollectionUpdateVisibilityPatch
         foreach (NHandImage hand in hands)
         {
             NetScreenType handScreenType = default;
-            bool hasHandScreen = RunManager.Instance.IsSinglePlayerOrFakeMultiplayer
-                ? true
-                : TryGetScreenType(synchronizer, hand.Player.NetId, out handScreenType);
-            if (!RunManager.Instance.IsSinglePlayerOrFakeMultiplayer && !hasHandScreen)
+            bool hasHandScreen = TryGetScreenType(synchronizer, hand.Player.NetId, out handScreenType);
+            if (!hasHandScreen)
             {
-                hand.Visible = false;
-                continue;
-            }
+                // 正式版已移除 IsSinglePlayerOrFakeMultiplayer，这里直接回退到本地当前屏幕状态，
+                // 避免宝箱 UI 初始化阶段因缺失远端输入状态而中断整套界面创建。
+                if (!hasLocalScreen)
+                {
+                    hand.Visible = false;
+                    continue;
+                }
 
-            if (RunManager.Instance.IsSinglePlayerOrFakeMultiplayer)
-            {
-                handScreenType = NetScreenType.SharedRelicPicking;
+                handScreenType = localScreenType;
             }
 
             bool shouldShow = hasLocalScreen &&

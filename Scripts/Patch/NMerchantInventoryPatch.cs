@@ -34,7 +34,7 @@ internal static class NMerchantInventoryPatch
         }
 
         inventory = LocalMerchantInventoryRuntime.GetOrCreateInventory(merchantRoom, currentPlayer);
-        AccessTools.PropertySetter(typeof(MerchantRoom), nameof(MerchantRoom.Inventory))?.Invoke(merchantRoom, new object[] { inventory });
+        LocalMerchantInventoryRuntime.BindInventoryToRoom(merchantRoom, currentPlayer, inventory);
         LocalMultiControlLogger.Info($"商店库存绑定到当前角色: player={currentPlayer.NetId}");
     }
 }

@@ -32,7 +32,7 @@ internal sealed class LocalWakuuStarterRelic : RelicModel
         return amount + DynamicVars.Energy.BaseValue;
     }
 
-    public override Task BeforePlayPhaseStart(PlayerChoiceContext choiceContext, Player player)
+    public override Task AfterAutoPrePlayPhaseEnteredLate(PlayerChoiceContext choiceContext, Player player)
     {
         return LocalWakuuRelicRuntime.ExecuteBeforePlayPhaseStartAsync(this, choiceContext, player);
     }
