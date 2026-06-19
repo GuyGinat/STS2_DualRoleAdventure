@@ -1,0 +1,10 @@
+"workshopitem"
+{
+	"appid"		"2868840"
+	"contentfolder"		"C:\\Users\\temp\\项目\\杀戮尖塔2Mod\\Slay the Spire 2\\src\\Mods\\LocalMultiControl\\workshop\\content"
+	"previewfile"		"C:\\Users\\temp\\项目\\杀戮尖塔2Mod\\Slay the Spire 2\\src\\Mods\\LocalMultiControl\\workshop\\image.png"
+	"visibility"		"0"
+	"title"		"本地多角色(LocalMultiControl)V1.30"
+	"description"		"将联网控制流程改造为本地多角色可切换操控，支持单机多人协作体验。"
+	"changenote"		"更新到 V1.30：适配正式版宝箱与奖励读档链路，补齐创意工坊上传工作区并统一多角色命名。"
+}
