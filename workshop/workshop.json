@@ -1,6 +1,6 @@
 {
   "title": "本地多角色(LocalMultiControl)V1.30",
-  "description": "将联网控制流程改造为本地多角色可切换操控，支持单机多人协作体验。",
+  "description": "DualRoleAdventure（LocalMultiControl）是《杀戮尖塔2》的本地多控改造 Mod，可将联机多角色控制流程转为单机本地协作体验，支持 2 到 12 名角色、重复选角、关键流程顺畅切人，并重点保证控制权路由与状态一致性；进入方式为 多人模式 -> 创建 -> 单人多角色；当前支持战斗、事件、奖励、休息区与地图推进等多角色同步；安装时将 DualRoleAdventure.dll 与 DualRoleAdventure.json 放入 Slay the Spire 2/mods/DualRoleAdventure/；问题反馈请尽量附上幕数、场景和准确复现步骤，GitHub 地址：https://github.com/liwenhao0427/STS2_DualRoleAdventure ，意见 Bug 反馈：https://my.feishu.cn/share/base/form/shrcn5DNr4nXrBDHMkLrHaEaVyh 。",
   "visibility": "public",
   "changeNote": "更新到 V1.30：适配正式版宝箱与奖励读档链路，补齐创意工坊上传工作区并统一多角色命名。",
   "tags": [
