@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feishu Bitable Sync"
+  short_description: "Sync LocalMultiControl task updates to Feishu Bitable."
+  default_prompt: "Use this skill to upsert task progress into the LocalMultiControl Feishu task table after commits."

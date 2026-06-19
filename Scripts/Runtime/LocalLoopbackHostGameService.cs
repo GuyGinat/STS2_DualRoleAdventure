@@ -1,5 +1,8 @@
-using MegaCrit.Sts2.Core.Entities.Multiplayer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using MegaCrit.Sts2.Core.Context;
+using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Multiplayer.Messages.Game;
 using MegaCrit.Sts2.Core.Multiplayer.Messages.Game.Sync;
@@ -13,17 +16,21 @@ namespace LocalMultiControl.Scripts.Runtime;
 
 internal sealed class LocalLoopbackHostGameService : INetHostGameService
 {
-    private readonly Dictionary<Type, List<Delegate>> _handlers = new Dictionary<Type, List<Delegate>>();
+    private readonly Dictionary<Type, List<Delegate>> _handlers = new();
 
-    private readonly List<NetClientData> _connectedPeers = new List<NetClientData>();
+    private readonly List<Action> _bufferedDispatches = new();
+
+    private readonly List<NetClientData> _connectedPeers = new();
 
     private ulong _currentSenderId;
+
+    private bool _isBufferingMessages;
 
     public LocalLoopbackHostGameService(ulong hostPlayerId)
     {
         _currentSenderId = hostPlayerId;
         IsConnected = true;
-        LocalMultiControlLogger.Info($"创建本地回环网络服务，初始 sender: {_currentSenderId}");
+        LocalMultiControlLogger.Info($"创建本地回环网络服务，初始 sender={_currentSenderId}");
     }
 
     public ulong NetId => _currentSenderId;
@@ -60,7 +67,7 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
     public void SendMessage<T>(T message, ulong playerId) where T : INetMessage
     {
         AlignSenderWithLocalContext();
-        LocalMultiControlLogger.Info($"本地回环定向发送消息: {typeof(T).Name}, sender={_currentSenderId}, target={playerId}");
+        LocalMultiControlLogger.Info($"本地回环定向发消息: {typeof(T).Name}, sender={_currentSenderId}, target={playerId}");
     }
 
     public void SendMessage<T>(T message) where T : INetMessage
@@ -71,7 +78,7 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
             LocalMultiControlLogger.Info($"本地回环广播消息: {typeof(T).Name}, sender={_currentSenderId}");
         }
 
-        TryDispatchSyntheticSecondPlayerSync(message);
+        TryDispatchSyntheticLocalPlayerSync(message);
     }
 
     public void RegisterMessageHandler<T>(MessageHandlerDelegate<T> messageHandlerDelegate) where T : INetMessage
@@ -97,6 +104,13 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
 
     public void DispatchLoopback<T>(T message, ulong senderId) where T : INetMessage
     {
+        if (_isBufferingMessages && message.ShouldBuffer)
+        {
+            _bufferedDispatches.Add(() => DispatchLoopback(message, senderId));
+            LocalMultiControlLogger.Info($"本地回环消息进入缓冲: {typeof(T).Name}, sender={senderId}, buffered={_bufferedDispatches.Count}");
+            return;
+        }
+
         Type messageType = typeof(T);
         if (!_handlers.TryGetValue(messageType, out List<Delegate>? handlers) || handlers.Count == 0)
         {
@@ -141,6 +155,29 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
         LocalMultiControlLogger.Info($"本地回环加载状态更新: {isLoading}");
     }
 
+    public void SetBufferMessages(bool bufferMessages)
+    {
+        if (_isBufferingMessages == bufferMessages)
+        {
+            return;
+        }
+
+        _isBufferingMessages = bufferMessages;
+        if (bufferMessages)
+        {
+            LocalMultiControlLogger.Info("本地回环开始缓冲消息");
+            return;
+        }
+
+        List<Action> bufferedDispatches = new(_bufferedDispatches);
+        _bufferedDispatches.Clear();
+        LocalMultiControlLogger.Info($"本地回环释放缓冲消息: count={bufferedDispatches.Count}");
+        foreach (Action dispatch in bufferedDispatches)
+        {
+            dispatch();
+        }
+    }
+
     public string? GetRawLobbyIdentifier()
     {
         return "local-self-coop";
@@ -158,7 +195,7 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
         ClientConnected?.Invoke(peerId);
     }
 
-    private void TryDispatchSyntheticSecondPlayerSync<T>(T message) where T : INetMessage
+    private void TryDispatchSyntheticLocalPlayerSync<T>(T message) where T : INetMessage
     {
         if (_currentSenderId != LocalSelfCoopContext.PrimaryPlayerId)
         {
@@ -176,18 +213,21 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
             return;
         }
 
-        var secondPlayer = runState.Players.FirstOrDefault((player) => player.NetId == LocalSelfCoopContext.SecondaryPlayerId);
-        if (secondPlayer == null)
+        int dispatchCount = 0;
+        foreach (var player in runState.Players.Where((candidate) => candidate.NetId != LocalSelfCoopContext.PrimaryPlayerId))
         {
-            return;
+            SyncPlayerDataMessage syntheticMessage = new()
+            {
+                player = player.ToSerializable()
+            };
+            DispatchLoopback(syntheticMessage, player.NetId);
+            dispatchCount++;
         }
 
-        SyncPlayerDataMessage syntheticMessage = new SyncPlayerDataMessage
+        if (dispatchCount > 0)
         {
-            player = secondPlayer.ToSerializable()
-        };
-        DispatchLoopback(syntheticMessage, LocalSelfCoopContext.SecondaryPlayerId);
-        LocalMultiControlLogger.Info("本地回环已注入第二玩家同步消息，避免开局同步阻塞。");
+            LocalMultiControlLogger.Info($"本地回环已注入额外玩家同步消息: count={dispatchCount}");
+        }
     }
 
     private void AlignSenderWithLocalContext()

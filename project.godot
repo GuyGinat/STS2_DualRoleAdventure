@@ -10,13 +10,13 @@ config_version=5
 
 [application]
 
-config/name="LocalMultiControl"
+config/name="DualRoleAdventure"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [dotnet]
 
-project/assembly_name="LocalMultiControl"
+project/assembly_name="DualRoleAdventure"
 
 [rendering]
 

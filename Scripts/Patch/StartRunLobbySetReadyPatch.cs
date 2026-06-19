@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using HarmonyLib;
 using LocalMultiControl.Scripts.Runtime;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
@@ -24,7 +26,7 @@ internal static class StartRunLobbySetReadyPatch
             {
                 player.isReady = true;
                 __instance.Players[i] = player;
-                __instance.LobbyListener.PlayerChanged(player);
+                __instance.LobbyListener.PlayerChanged(player, false);
                 hasChange = true;
             }
         }
@@ -34,10 +36,13 @@ internal static class StartRunLobbySetReadyPatch
             LocalMultiControlLogger.Info("本地双人模式自动就绪：已将全部玩家标记为 ready。");
         }
 
-        bool beginningRun = AccessTools.Field(typeof(StartRunLobby), "_beginningRun")?.GetValue(__instance) as bool? ?? false;
+        bool beginningRun = AccessTools.Field(typeof(StartRunLobby), "_isBeginningRun")?.GetValue(__instance) as bool? ?? false;
         if (!beginningRun)
         {
-            AccessTools.Method(typeof(StartRunLobby), "BeginRunIfAllPlayersReady")?.Invoke(__instance, new object[] { });
+            MethodInfo? beginRunIfReadyMethod =
+                AccessTools.Method(typeof(StartRunLobby), "BeginRunForAllPlayersIfAllReady")
+                ?? AccessTools.Method(typeof(StartRunLobby), "BeginRunIfAllPlayersReady");
+            beginRunIfReadyMethod?.Invoke(__instance, Array.Empty<object>());
         }
     }
 }

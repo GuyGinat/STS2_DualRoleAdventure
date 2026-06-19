@@ -17,6 +17,11 @@ internal static class NOverlayStackPatch
             return;
         }
 
+        if (LocalSelfCoopContext.UseSingleEventFlow)
+        {
+            return;
+        }
+
         if (!RunManager.Instance.IsInProgress)
         {
             return;

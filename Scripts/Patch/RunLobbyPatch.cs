@@ -11,13 +11,14 @@ internal static class RunLobbyPatch
     [HarmonyPrefix]
     private static bool Prefix(RunLobby __instance)
     {
-        if (RunManager.Instance.NetService is not LocalLoopbackHostGameService)
+        bool shouldHandleLocally = LocalSelfCoopContext.IsEnabled || RunManager.Instance.NetService is LocalLoopbackHostGameService;
+        if (!shouldHandleLocally)
         {
             return true;
         }
 
-        LocalMultiControlLogger.Info("本地双人模式接管 RunLobby.AbandonRun，跳过 NetHostGameService 强转路径。");
-        AccessTools.Method(typeof(RunManager), "AbandonAndCleanUp")?.Invoke(RunManager.Instance, new object[] { false });
+        LocalMultiControlLogger.Info("本地多控接管 RunLobby.AbandonRun，直接执行整局放弃流程。");
+        ((IRunLobbyListener)RunManager.Instance).RunAbandoned();
         return false;
     }
 }

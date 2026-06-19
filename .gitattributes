@@ -1,0 +1,21 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.cs text working-tree-encoding=UTF-8 eol=lf
+*.csproj text working-tree-encoding=UTF-8 eol=lf
+*.sln text working-tree-encoding=UTF-8 eol=lf
+*.json text working-tree-encoding=UTF-8 eol=lf
+*.md text working-tree-encoding=UTF-8 eol=lf
+*.cfg text working-tree-encoding=UTF-8 eol=lf
+*.godot text working-tree-encoding=UTF-8 eol=lf
+
+*.dll binary
+*.pck binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary

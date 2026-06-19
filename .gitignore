@@ -6,7 +6,9 @@
 bin/
 obj/
 
-# Local export artifact
+# Local export artifacts
+DualRoleAdventure.dll
+DualRoleAdventure.pck
 LocalMultiControl.pck
 
 # IDE/user files
@@ -19,3 +21,7 @@ LocalMultiControl.pck
 # Keep repository code-focused
 *.uid
 *.sln
+.dotnet
+/DualRoleAdventure.pck
+/DualRoleAdventure.dll
+release/

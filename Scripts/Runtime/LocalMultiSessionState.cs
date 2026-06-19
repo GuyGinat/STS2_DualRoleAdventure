@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Runs;
 
@@ -5,9 +7,7 @@ namespace LocalMultiControl.Scripts.Runtime;
 
 internal sealed class LocalMultiSessionState
 {
-    private const int ExpectedPlayerCount = 2;
-
-    private readonly List<ulong> _orderedPlayerIds = new List<ulong>();
+    private readonly List<ulong> _orderedPlayerIds = new();
 
     private int _activeIndex;
 
@@ -32,20 +32,39 @@ internal sealed class LocalMultiSessionState
     {
         Reset("准备初始化新会话");
 
-        if (runState.Players.Count != ExpectedPlayerCount)
+        if (runState.Players.Count < 2)
         {
-            LocalMultiControlLogger.Info($"本次运行玩家数={runState.Players.Count}，首版仅在2人模式下启用本地多控会话。 ");
+            LocalMultiControlLogger.Info($"本次运行玩家数={runState.Players.Count}，玩家不足2时不启用本地多控会话。");
             return;
         }
 
-        foreach (Player player in runState.Players)
+        if (LocalSelfCoopContext.IsEnabled)
         {
-            _orderedPlayerIds.Add(player.NetId);
+            foreach (ulong localPlayerId in LocalSelfCoopContext.LocalPlayerIds)
+            {
+                Player? player = runState.GetPlayer(localPlayerId);
+                if (player != null && !_orderedPlayerIds.Contains(player.NetId))
+                {
+                    _orderedPlayerIds.Add(player.NetId);
+                }
+            }
+        }
+
+        if (_orderedPlayerIds.Count == 0)
+        {
+            foreach (Player player in runState.Players)
+            {
+                if (!_orderedPlayerIds.Contains(player.NetId))
+                {
+                    _orderedPlayerIds.Add(player.NetId);
+                }
+            }
         }
 
         _activeIndex = 0;
         IsInitialized = true;
-        LocalMultiControlLogger.Info($"本地多控会话已初始化，玩家列表: {string.Join(",", _orderedPlayerIds)}，当前操控玩家: {_orderedPlayerIds[_activeIndex]}");
+        LocalMultiControlLogger.Info(
+            $"本地多控会话已初始化，玩家列表: {string.Join(",", _orderedPlayerIds)}，当前操控玩家: {_orderedPlayerIds[_activeIndex]}");
     }
 
     public void Reset(string reason)
@@ -121,7 +140,7 @@ internal sealed class LocalMultiSessionState
 
         if (_orderedPlayerIds.Count < 2)
         {
-            LocalMultiControlLogger.Warn($"忽略{actionName}，原因: 玩家数量不足2。 ");
+            LocalMultiControlLogger.Warn($"忽略{actionName}，原因: 玩家数量不足2。");
             return false;
         }
 

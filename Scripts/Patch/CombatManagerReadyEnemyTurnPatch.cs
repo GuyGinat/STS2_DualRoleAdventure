@@ -23,7 +23,7 @@ internal static class CombatManagerReadyEnemyTurnPatch
         }
 
         CombatState? state = __instance.DebugOnlyGetState();
-        if (state == null || state.CurrentSide != CombatSide.Player || state.Players.Count != 2)
+        if (state == null || state.CurrentSide != CombatSide.Player || state.Players.Count < 2)
         {
             return;
         }
@@ -34,14 +34,20 @@ internal static class CombatManagerReadyEnemyTurnPatch
             return;
         }
 
-        Player? otherPlayer = state.Players.FirstOrDefault((p) => p.NetId != player.NetId);
-        if (otherPlayer == null || readySet.Contains(otherPlayer))
+        List<Player> pendingPlayers = state.Players
+            .Where((candidate) => candidate.NetId != player.NetId)
+            .Where((candidate) => !readySet.Contains(candidate))
+            .ToList();
+        foreach (Player pendingPlayer in pendingPlayers)
         {
-            return;
+            readySet.Add(pendingPlayer);
         }
 
-        readySet.Add(otherPlayer);
-        LocalMultiControlLogger.Info($"本地双人模式自动补齐敌方回合就绪: {player.NetId} + {otherPlayer.NetId}");
+        if (pendingPlayers.Count > 0)
+        {
+            LocalMultiControlLogger.Info(
+                $"本地多控自动补齐敌方回合就绪: trigger={player.NetId}, mirrored={string.Join(",", pendingPlayers.Select((candidate) => candidate.NetId))}");
+        }
     }
 
     [HarmonyPostfix]

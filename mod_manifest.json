@@ -1,7 +1,7 @@
 {
-  "pck_name": "localmulticontrol",
-  "name": "Local Multi Control",
+  "pck_name": "dualroleadventure",
+  "name": "Dual Role Adventure",
   "author": "磁石战士Ω",
-  "description": "将联机控制逻辑适配为本地多控的基础 Mod 框架",
-  "version": "0.0.1"
+  "description": "单人双角色冒险模式：共享遗物/药水并支持按当前角色定向拿卡",
+  "version": "0.1.9"
 }

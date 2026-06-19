@@ -5,6 +5,8 @@
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>DualRoleAdventure</AssemblyName>
+    <RootNamespace>DualRoleAdventure</RootNamespace>
 
     <!-- 改成你的杀戮尖塔2目录 -->
     <Sts2Dir>E:\SteamLibrary\steamapps\common\Slay the Spire 2</Sts2Dir>
@@ -28,10 +30,9 @@
     </Reference>
   </ItemGroup>
 
-  <!-- 自动复制dll -->
-  <Target Name="Copy Mod" AfterTargets="PostBuildEvent">
-    <Message Text="Copying mod to Slay the Spire 2 mods folder..." Importance="high" />
-    <MakeDir Directories="$(Sts2Dir)\mods\" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Dir)\mods\$(MSBuildProjectName)\" />
+  <!-- 构建后将 DLL 放到项目根目录，供部署脚本统一复制 -->
+  <Target Name="CopyDllToProjectRoot" AfterTargets="Build">
+    <Message Text="Copying DLL to project root..." Importance="high" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MSBuildProjectDirectory)\$(AssemblyName).dll" />
   </Target>
 </Project>

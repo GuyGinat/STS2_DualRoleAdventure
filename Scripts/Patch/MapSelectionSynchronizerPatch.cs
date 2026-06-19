@@ -29,20 +29,21 @@ internal static class MapSelectionSynchronizerPatch
             }
 
             RunState? runState = AccessTools.Field(typeof(MapSelectionSynchronizer), "_runState")?.GetValue(__instance) as RunState;
-            if (runState == null || runState.Players.Count != 2)
-            {
-                return;
-            }
-
             List<MapVote?>? votes = AccessTools.Field(typeof(MapSelectionSynchronizer), "_votes")?.GetValue(__instance) as List<MapVote?>;
-            if (votes == null || votes.Count != 2)
+            if (runState == null || votes == null)
             {
                 return;
             }
 
-            int localIndex = -1;
+            int sharedCount = Math.Min(runState.Players.Count, votes.Count);
+            if (sharedCount < 2)
+            {
+                return;
+            }
+
             ulong currentControlledPlayerId = LocalMultiControlRuntime.SessionState.CurrentControlledPlayerId ?? 0;
-            for (int i = 0; i < runState.Players.Count; i++)
+            int localIndex = -1;
+            for (int i = 0; i < sharedCount; i++)
             {
                 if (runState.Players[i].NetId == currentControlledPlayerId)
                 {
@@ -50,21 +51,31 @@ internal static class MapSelectionSynchronizerPatch
                     break;
                 }
             }
+
             if (localIndex < 0)
             {
                 return;
             }
 
-            int otherIndex = (localIndex + 1) % 2;
-            if (votes[otherIndex].HasValue)
+            int filledCount = 1;
+            for (int i = 0; i < sharedCount; i++)
             {
-                return;
+                if (i == localIndex)
+                {
+                    continue;
+                }
+
+                if (!votes[i].HasValue)
+                {
+                    votes[i] = destination;
+                }
+
+                filledCount++;
             }
 
-            votes[otherIndex] = destination;
-            LocalMultiControlLogger.Info($"地图自动跟投: slot{otherIndex} -> {destination}");
-
-            if (votes.All((vote) => vote.HasValue && vote.Value.mapGenerationCount == __instance.MapGenerationCount) && netService.Type != NetGameType.Client)
+            LocalMultiControlLogger.Info($"地图自动跟投: vote={destination}, filled={filledCount}/{sharedCount}");
+            if (votes.Take(sharedCount).All((vote) => vote.HasValue && vote.Value.mapGenerationCount == __instance.MapGenerationCount) &&
+                netService.Type != NetGameType.Client)
             {
                 AccessTools.Method(typeof(MapSelectionSynchronizer), "MoveToMapCoord")?.Invoke(__instance, Array.Empty<object>());
                 LocalMultiControlLogger.Info("地图自动跟投完成，已触发路线推进。");
