@@ -165,3 +165,20 @@ internal static class NTreasureRoomRelicCollectionFocusGuardPatch
         return __exception;
     }
 }
+
+[HarmonyPatch(typeof(NTreasureRoomRelicHolder), "OnFocus")]
+internal static class NTreasureRoomRelicHolderFocusGuardPatch
+{
+    [HarmonyFinalizer]
+    private static Exception? Finalizer(Exception? __exception)
+    {
+        if (__exception is InvalidOperationException exception &&
+            exception.Message.Contains("Model was accessed before it was set", StringComparison.Ordinal))
+        {
+            LocalMultiControlLogger.Warn("宝箱遗物焦点到达时模型尚未就绪，已跳过该帧 Focus。");
+            return null;
+        }
+
+        return __exception;
+    }
+}

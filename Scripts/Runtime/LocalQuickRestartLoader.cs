@@ -67,7 +67,7 @@ internal static class LocalQuickRestartLoader
             }
 
             RunState runState = RunState.FromSerializable(saveData);
-            RunManager.Instance.SetUpSavedMultiPlayer(runState, lobby);
+            await RunManager.Instance.SetUpSavedMultiplayer(runState, lobby);
             await game.LoadRun(runState, saveData.PreFinishedRoom);
             lobby.CleanUp(disconnectSession: false);
             await game.Transition.FadeIn();
