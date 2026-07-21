@@ -9,7 +9,9 @@
     <RootNamespace>DualRoleAdventure</RootNamespace>
 
     <!-- 改成你的杀戮尖塔2目录 -->
-    <Sts2Dir>E:\SteamLibrary\steamapps\common\Slay the Spire 2</Sts2Dir>
+    <!-- Windows path when building from Windows, WSL mount path when building from WSL -->
+    <Sts2Dir Condition="'$(OS)' == 'Windows_NT'">C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2</Sts2Dir>
+    <Sts2Dir Condition="'$(OS)' != 'Windows_NT'">/mnt/c/Program Files (x86)/Steam/steamapps/common/Slay the Spire 2</Sts2Dir>
     <Sts2DataDir>$(Sts2Dir)\data_sts2_windows_x86_64</Sts2DataDir>
   </PropertyGroup>
 

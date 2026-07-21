@@ -18,6 +18,9 @@ LocalMultiControl.pck
 *.suo
 *.tmp
 
+# Decompiled game source (read-only reference, never commit)
+src/
+
 # Keep repository code-focused
 *.uid
 *.sln
