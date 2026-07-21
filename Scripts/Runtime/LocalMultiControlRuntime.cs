@@ -1401,7 +1401,7 @@ internal static class LocalMultiControlRuntime
 
             if (targetEvent.LayoutType == EventLayoutType.Combat && targetEvent.Node == null)
             {
-                targetEvent.GenerateInternalCombatState(runState);
+                synchronizer.GenerateInternalCombatStateIfNecessary(targetEvent);
             }
 
             bool isPreFinished = runState.CurrentRoom is EventRoom currentEventRoom && currentEventRoom.IsPreFinished;

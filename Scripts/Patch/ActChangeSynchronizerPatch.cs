@@ -59,7 +59,7 @@ internal static class ActChangeSynchronizerPatch
 
         foreach (Player mirroredPlayer in pendingPlayers)
         {
-            RunManager.Instance.ActionQueueSynchronizer.RequestEnqueue(new VoteToMoveToNextActAction(mirroredPlayer));
+            RunManager.Instance.ActionQueueSynchronizer.RequestEnqueue(new VoteToMoveToNextActAction(mirroredPlayer, runState.CurrentActIndex));
         }
 
         LocalMultiControlLogger.Info(

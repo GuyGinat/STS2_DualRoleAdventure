@@ -375,11 +375,11 @@ internal static class LocalGamepadAxisRouter
         horizontal = 0;
         vertical = 0;
 
-        // 兼容不同输入层映射：优先读取 joystick_*，回退到 dpad_*。
-        bool right = Input.IsActionPressed(Controller.joystickRight) || Input.IsActionPressed(Controller.dPadEast);
-        bool left = Input.IsActionPressed(Controller.joystickLeft) || Input.IsActionPressed(Controller.dPadWest);
-        bool down = Input.IsActionPressed(Controller.joystickDown) || Input.IsActionPressed(Controller.dPadSouth);
-        bool up = Input.IsActionPressed(Controller.joystickUp) || Input.IsActionPressed(Controller.dPadNorth);
+        // 兼容不同输入层映射：优先读取 l_stick_*，回退到 d_pad_*。
+        bool right = Input.IsActionPressed(Controller.lStickRight) || Input.IsActionPressed(Controller.dPadRight);
+        bool left = Input.IsActionPressed(Controller.lStickLeft) || Input.IsActionPressed(Controller.dPadLeft);
+        bool down = Input.IsActionPressed(Controller.lStickDown) || Input.IsActionPressed(Controller.dPadDown);
+        bool up = Input.IsActionPressed(Controller.lStickUp) || Input.IsActionPressed(Controller.dPadUp);
 
         if (right && !left)
         {

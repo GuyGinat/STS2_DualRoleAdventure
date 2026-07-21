@@ -157,7 +157,7 @@ internal static class LocalMerchantInventoryRuntime
             relicEntries.Add(new MerchantRelicEntry(rarity, player));
         }
 
-        List<PotionModel> potions = PotionFactory.CreateRandomPotionsOutOfCombat(player, 3, player.PlayerRng.Shops);
+        List<PotionModel> potions = PotionFactory.CreateRandomPotionsOutOfCombat(player, 3, player.PlayerRng.Shops).ToList();
         foreach (PotionModel potion in potions)
         {
             potionEntries.Add(new MerchantPotionEntry(potion.ToMutable(), player));
