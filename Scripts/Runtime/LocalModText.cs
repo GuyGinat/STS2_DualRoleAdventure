@@ -33,6 +33,14 @@ internal static class LocalModText
         "已进入本地多角色：按 +/- 调整人数（2~12）",
         "Local multi-control enabled: use +/- to set player count (2-12)");
 
+    public static string GhostHandsOn => Select(
+        "队友手牌已显示（Ctrl+方向键 调整位置，F8 关闭）",
+        "Teammate hands shown (Ctrl+Arrows to move, F8 to hide)");
+
+    public static string GhostHandsOff => Select(
+        "队友手牌已隐藏（F8 重新显示）",
+        "Teammate hands hidden (F8 to show)");
+
     public static string LobbyEditingSlot(string slotLabel)
     {
         return Select($"大厅编辑角色：{RoleSlot(slotLabel)}", $"Lobby Editor: {RoleSlot(slotLabel)}");
