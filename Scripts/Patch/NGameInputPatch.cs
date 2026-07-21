@@ -24,12 +24,17 @@ internal static class NGameInputPatch
         Key keycode = keyEvent.Keycode;
         Key physicalKeycode = keyEvent.PhysicalKeycode;
 
-        bool isPrevious = keycode == Key.Bracketleft ||
+        // Tab cycles forward, Shift+Tab cycles backward; legacy keys kept as aliases.
+        bool isTab = keycode == Key.Tab || physicalKeycode == Key.Tab;
+
+        bool isPrevious = (isTab && keyEvent.ShiftPressed) ||
+                          keycode == Key.Bracketleft ||
                           physicalKeycode == Key.Bracketleft ||
                           keycode == Key.T ||
                           physicalKeycode == Key.T;
 
-        bool isNext = keycode == Key.Bracketright ||
+        bool isNext = (isTab && !keyEvent.ShiftPressed) ||
+                      keycode == Key.Bracketright ||
                       physicalKeycode == Key.Bracketright ||
                       keycode == Key.R ||
                       physicalKeycode == Key.R ||
@@ -65,10 +70,10 @@ internal static class NGameInputPatch
 
         if (isPrevious)
         {
-            LocalMultiControlLogger.Info("检测到切换热键: [ / T (反切)");
+            LocalMultiControlLogger.Info("检测到切换热键: Shift+Tab / [ / T (反切)");
             if (RunManager.Instance.IsInProgress)
             {
-                LocalMultiControlRuntime.SwitchPreviousControlledPlayer("hotkey:[/T");
+                LocalMultiControlRuntime.SwitchPreviousControlledPlayer("hotkey:S-Tab/[/T");
             }
             else
             {
@@ -78,10 +83,10 @@ internal static class NGameInputPatch
             return;
         }
 
-        LocalMultiControlLogger.Info("检测到切换热键: ] / R (正切)");
+        LocalMultiControlLogger.Info("检测到切换热键: Tab / ] / R (正切)");
         if (RunManager.Instance.IsInProgress)
         {
-            LocalMultiControlRuntime.SwitchNextControlledPlayer("hotkey:]/R");
+            LocalMultiControlRuntime.SwitchNextControlledPlayer("hotkey:Tab/]/R");
         }
         else
         {
