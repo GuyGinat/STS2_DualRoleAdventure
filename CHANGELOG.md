@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [v1.31] - 2026-07-27
+
+First community-maintained release. The original author (liwenhao0427) discontinued
+maintenance at v1.30 and gave written permission (2026-07-27, email) for this fork to
+take over maintenance and distribution; they will cross-link this version from the
+original Workshop item and video.
+
 ### Fixed
 - Adapted to game v0.109.0 (2026-07-17); five compile-level API breaks since the v1.30 baseline:
   - `VoteToMoveToNextActAction` gained a required `currentActIndex` parameter; the act-change auto-ready patch now passes `RunState.CurrentActIndex`, mirroring the game's own call site.
