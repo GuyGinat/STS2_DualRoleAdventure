@@ -1,6 +1,6 @@
 {
   "title": "本地多角色(LocalMultiControl)V1.31 续命维护版",
-  "description": "DualRoleAdventure（LocalMultiControl）续命维护版：原作者 liwenhao0427 已停更并授权社区接手维护，本条目为持续更新版本（原版条目：https://steamcommunity.com/sharedfiles/filedetails/?id=3747538947 ）。本 Mod 可将《杀戮尖塔2》联机多角色控制流程转为单机本地协作体验，支持 2 到 12 名角色、重复选角、关键流程顺畅切人；进入方式为 多人模式 -> 创建 -> 单人多角色。V1.31 新增：适配游戏正式版 v0.109.0；Tab / Shift+Tab 切换角色；可选队友手牌显示（F8 开关，Ctrl+方向键调整位置）。问题反馈请到 GitHub Issues：https://github.com/GITHUB_USERNAME_TBD/STS2_DualRoleAdventure/issues 。",
+  "description": "DualRoleAdventure（LocalMultiControl）续命维护版：原作者 liwenhao0427 已停更并授权社区接手维护，本条目为持续更新版本（原版条目：https://steamcommunity.com/sharedfiles/filedetails/?id=3747538947 ）。本 Mod 可将《杀戮尖塔2》联机多角色控制流程转为单机本地协作体验，支持 2 到 12 名角色、重复选角、关键流程顺畅切人；进入方式为 多人模式 -> 创建 -> 单人多角色。V1.31 新增：适配游戏正式版 v0.109.0；Tab / Shift+Tab 切换角色；可选队友手牌显示（F8 开关，Ctrl+方向键调整位置）。问题反馈请到 GitHub Issues：https://github.com/GuyGinat/STS2_DualRoleAdventure/issues 。",
   "visibility": "public",
   "changeNote": "V1.31：适配游戏正式版 v0.109.0；修复全新档案下看不到本地多角色入口的问题；新增 Tab/Shift+Tab 切人热键；新增可选队友手牌显示。",
   "tags": [

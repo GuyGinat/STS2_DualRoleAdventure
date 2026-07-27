@@ -1,6 +1,6 @@
-﻿# Changelog
+# Changelog
 
-本文件记录 `LocalMultiControl` 的重要版本与关键变更。
+Notable versions and key changes of `LocalMultiControl` / `DualRoleAdventure`. Entries up to v1.30 are translated from the original author's Chinese changelog; the fuller day-by-day history lives in `docs/archive/player-update-history.zh.md`.
 
 ## [Unreleased]
 
@@ -11,102 +11,108 @@ maintenance at v1.30 and gave written permission (2026-07-27, email) for this fo
 take over maintenance and distribution; they will cross-link this version from the
 original Workshop item and video.
 
+### Added
+- Optional "ghost hands" combat overlay: shows every backgrounded character's current hand as rows of non-interactive cards behind and above the active character's hand. Toggle with `F8`; move the display at runtime with `Ctrl+Arrows` (`Ctrl+Shift+Arrows` for fine 4px steps). State, position and scale persist to `user://dual_role_adventure_settings.json` (edit `ghostHandsScale` there to resize; default 0.5). Card nodes are borrowed from and returned to the game's own `NodePool`.
+
+### Changed
+- Character switching is now bound to `Tab` (next) and `Shift+Tab` (previous). The legacy keys — `]` / `R` / `/` for next, `[` / `T` for previous — still work as aliases.
+- Documentation translated to English; original Chinese documents archived under `docs/archive/`.
+
 ### Fixed
 - Adapted to game v0.109.0 (2026-07-17); five compile-level API breaks since the v1.30 baseline:
   - `VoteToMoveToNextActAction` gained a required `currentActIndex` parameter; the act-change auto-ready patch now passes `RunState.CurrentActIndex`, mirroring the game's own call site.
   - `PotionFactory.CreateRandomPotionsOutOfCombat` now returns `IEnumerable<PotionModel>`; the local merchant inventory rebuild materializes it with `.ToList()` like the game does.
   - `Controller` input constants were renamed (`joystick*` → `lStick*`, `dPad{East,West,North,South}` → `dPad{Right,Left,Up,Down}`); updated the gamepad axis router and the character-select hotkey hint icons.
   - `EventModel.GenerateInternalCombatState(runState)` was removed; rebuilding a non-shared combat-layout event room on character switch now calls `EventSynchronizer.GenerateInternalCombatStateIfNecessary(event)` instead.
-
-### Added
-- Optional "ghost hands" combat overlay: shows every backgrounded character's current hand as rows of non-interactive cards behind and above the active character's hand. Toggle with `F8`; move the display at runtime with `Ctrl+Arrows` (`Ctrl+Shift+Arrows` for fine 4px steps). State, position and scale persist to `user://dual_role_adventure_settings.json` (edit `ghostHandsScale` there to resize; default 0.5). Card nodes are borrowed from and returned to the game's own `NodePool`.
-
-### Changed
-- Character switching is now bound to `Tab` (next) and `Shift+Tab` (previous). The legacy keys — `]` / `R` / `/` for next, `[` / `T` for previous — still work as aliases.
-
-### Fixed (post-playtest round 1)
 - Local Multi-Control entry unreachable on fresh profiles: since v0.109.0, pressing Host with `Progress.NumberOfRuns == 0` skips the host submenu and immediately hosts a Standard online game, so the injected card never appeared. A new prefix on `NMultiplayerSubmenu.OnHostPressed` routes fresh profiles through the host submenu (its Standard card keeps the one-click hosting behavior).
 
 ### Notes
 - `NRestSiteRoom.UpdateNavigation` no longer exists in v0.109.0; the rest-site controller focus recovery already guarded that lookup with a null-conditional call, so it degrades to the mod's own focus-grab fallback.
-- Static sweep of all 125 string-based Harmony/reflection targets against decompiled v0.109.0 source: everything else resolves (the two `BeginRunIfAllPlayersReady` misses are the intentional legacy-name fallback legs).
+- Static sweep of all string-based Harmony/reflection targets against decompiled v0.109.0 source: everything else resolves (the two `BeginRunIfAllPlayersReady` misses are the intentional legacy-name fallback legs).
+
+## [v1.30] - 2026-06-19
+
+Final release by the original author. (Summarized from the archived player-update history.)
+
+### Fixed
+- Adapted to the game's 1.0 release: treasure rooms no longer black-screen (the removed `IsSinglePlayerOrFakeMultiplayer` API is no longer called; the chest gesture layer works with the new vote structure, with a focus guard for first-frame relic nodes).
+- Shop inventory switching adapted to the new `Inventories` structure; ESC quick-restart moved to the release version's load method.
+- Loading a multi-character save resumes correctly (`BeginRunForAllPlayersIfAllReady` with a reflection fallback to the legacy `BeginRunIfAllPlayersReady`).
+- Reward synchronizer local-player checks (`RewardsSetSynchronizer`) are re-synced on character switch, fixing "clicked a relic reward, nothing happened" in the beta.
 
 ## [v1.17] - 2026-03-28
 
 ### Changed
-- 重构战利品环节：改为按角色独立生成奖励后汇总展示，每个奖励前标识对应角色
-- 遗物翻倍、上等好货因子、猎人狩猎等效果现在能正确按角色独立生效
-- 移除旧的复制资源镜像逻辑，战利品场景下的遗物/药水/金币镜像被汇总流程抑制
+- Reworked the loot phase: rewards are generated independently per character, then presented as one combined list with a per-character prefix label.
+- Relic-doubling effects, shop-quality factors, and hunt-style card effects now apply per owning character.
+- Removed the old resource-mirroring logic; relic/potion/gold mirroring in loot scenes is suppressed by the aggregated flow.
 
 ## [v1.10] - 2026-03-22
 
 ### Fixed
-- 修复瓦库自动切人漏触发：当所有瓦库角色都无牌可出时，新增逐帧兜底自动切到下一位可操作的非瓦库角色。
-- 修正瓦库英文文案拼写，统一为 `Vakuu`。
+- Vakuu auto-switch could miss its trigger: added a per-frame fallback that switches to the next controllable non-Vakuu character when no Vakuu character has a playable card.
+- Standardized the English spelling `Vakuu`.
 
 ### Changed
-- 瓦库开关提示文案统一中英本地化，并在鼠标与手柄切换路径共用同一提示：
-- 单角色提示为“瓦库将接管角色X操作 / Vakuu will control Player X”。
-- 全体提示为“瓦库将接管所有角色操作 / Vakuu will control all characters”。
+- Vakuu toggle hint text unified across mouse and controller paths, localized in Chinese and English (single: "Vakuu will control Player X"; all: "Vakuu will control all characters").
 
 ## [v1.09] - 2026-03-21
 
 ### Added
-- 新增手柄组合键：选角界面 `Y` 切换当前角色瓦库，`LT + Y` 切换全体瓦库开关。
-- 选角界面新增手柄热键图标提示（`LT + 上下左右`、`Y`、`LT + Y`），并与原版一致仅在手柄模式显示。
-- 完善 LT 组合输入链路：LT 持有期间全拦截原生手柄输入，释放时按是否使用组合决定是否回放原 LT 行为。
+- Controller combos on the character-select screen: `Y` toggles Vakuu for the highlighted character, `LT + Y` toggles all.
+- Controller hotkey hint icons on the select screen (`LT + D-pad`, `Y`, `LT + Y`), shown only in controller mode like the base game.
+- Full LT-combo input chain: while LT is held, native controller input is intercepted; on release, the original LT action replays only if no combo was used.
 
 ## [v1.06] - 2026-03-20
 
 ### Changed
-- 药水改为按角色独立维护：不再固定归属1号位玩家。
-- 移除本地多控下“初始额外+2药水位”的特殊规则，恢复联机一致的药水位行为。
-- 切人时顶部药水栏会跟随当前控制角色自动刷新，并保持可直接使用。
+- Potions are now maintained per character instead of being pinned to slot 1.
+- Removed the special "+2 initial potion slots" rule; potion slots match online multiplayer behavior.
+- The top potion bar follows the currently controlled character after switching and stays directly usable.
 
 ## [v1.05] - 2026-03-20
 
 ### Fixed
-- 移除宝箱补丁中的重复复制链路，避免同一次结算出现二次复制。
-- 宝箱遗物复制新增“已拥有去重”保护，减少重复遗物写入风险。
-- 藏宝图结算改为按全队统一处理，并补齐瓦库流程中的自动视角切换。
+- Removed a duplicate copy path in the treasure chest patch that could double-copy in a single settlement.
+- Chest relic copying now de-duplicates against already-owned relics.
+- Treasure-map settlement handled once for the whole party, with automatic view switching during Vakuu flows.
 
 ## [v0.1.9] - 2026-03-15
 
 ### Fixed
-- 修复休息区偶发“未手动选牌即随机升级并结束”的问题，恢复战斗外手动选牌。
-- 休息区改为固定串行：每位角色各选择一次后才结束，不再遗漏后续角色。
-- 事件中的升级/删牌等分支强制对所有未完成角色按同一选项逐次处理。
-- 宝箱切人后自动恢复鼠标可见，减少切人后鼠标丢失问题。
+- Rest sites no longer occasionally auto-upgrade a random card and end without manual selection; manual card selection outside combat restored.
+- Rest sites run strictly serially: each character chooses once before the site ends — no more skipped characters.
+- Event branches that upgrade/remove cards process every unfinished character with the same option, one by one.
+- Mouse visibility restored after switching characters at a treasure chest.
 
 ## [v0.1.3] - 2026-03-15
 
 ### Changed
-- 战斗界面切人按钮改为纯图标风格，支持放大与右侧镜像。
-- 选人界面右下 2x2 按钮组重排，统一与战斗界面交互样式。
-- 多轮截图驱动微调：优化箭头位置、边距、横向间距与可读性。
-
-### Notes
-- 对应发布标签：`v0.1.3`
-- 对应发布页：<https://github.com/liwenhao0427/STS2_DualRoleAdventure/releases/tag/v0.1.3>
+- Combat character-switch buttons redesigned as pure icons with scaling and right-side mirroring.
+- Character-select 2x2 button group rearranged to match combat-screen interaction style.
+- Multiple rounds of screenshot-driven tuning: arrow positions, margins, horizontal spacing, readability.
 
 ## [v0.1.2] - 2026-03-14
 
 ### Changed
-- 调整发版流程，支持“快速发版”（可直接基于项目根已有产物发布）。
+- Release process upgraded to support "fast releases" (publish directly from existing artifacts in the project root).
 
 ## [v0.1.1-clearable] - 2026-03-14
 
 ### Fixed
-- 修复入战斗顶部栏显示异常。
-- 修复共享事件自动代投相关卡流程问题。
+- Combat top-bar display glitch on entering combat.
+- Shared-event auto-voting flow blockage.
 
 ## [v0.1.0-initial-usable] - 2026-03-13
 
 ### Added
-- 建立本地多控最小可用闭环。
-- 基础输入切换、关键同步链路与核心补丁框架落地。
+- Minimal usable loop for local multi-control.
+- Basic input switching, key synchronization chains, and the core patch framework.
 
-[Unreleased]: https://github.com/liwenhao0427/STS2_DualRoleAdventure/compare/v1.10...HEAD
+[Unreleased]: https://github.com/GuyGinat/STS2_DualRoleAdventure/compare/v1.31...HEAD
+[v1.31]: https://github.com/GuyGinat/STS2_DualRoleAdventure/releases/tag/v1.31
+[v1.30]: https://github.com/liwenhao0427/STS2_DualRoleAdventure/releases/tag/v1.30
+[v1.17]: https://github.com/liwenhao0427/STS2_DualRoleAdventure/releases/tag/v1.17
 [v1.10]: https://github.com/liwenhao0427/STS2_DualRoleAdventure/releases/tag/v1.10
 [v1.09]: https://github.com/liwenhao0427/STS2_DualRoleAdventure/releases/tag/v1.09
 [v1.06]: https://github.com/liwenhao0427/STS2_DualRoleAdventure/releases/tag/v1.06

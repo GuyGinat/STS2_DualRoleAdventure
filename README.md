@@ -1,144 +1,78 @@
-﻿# LocalMultiControl（DualRoleAdventure）
+# DualRoleAdventure (LocalMultiControl)
 
-`LocalMultiControl` 是《Slay the Spire 2》的本地多控 Mod。
-目标是把联机控制链路复用到单机环境，实现 `2~12 人本地多控`（支持重复选角），并尽量保持原联机流程的一致性。
+A **Slay the Spire 2** mod that turns the official online multiplayer into a *local* multi-character experience: one player controls **2–12 characters** on a single machine (duplicate characters allowed), switching between them at any time, while the game still runs the real multiplayer flow underneath — no networking involved.
 
-## 现在能用到什么（玩家视角）
+> **Maintained fork.** The original mod was created by [liwenhao0427](https://github.com/liwenhao0427) and discontinued at v1.30 (June 2026). This fork continues maintenance and distribution with the original author's written permission; they link to this version from the [original Workshop item](https://steamcommunity.com/sharedfiles/filedetails/?id=3747538947). Thank you for building this, 磁石战士Ω!
 
-- 可以在单机里体验本地多角色玩法，并在关键场景切换操控角色。
-- 从大厅到战斗、事件、奖励、下一幕，主流程基本可跑通。
-- 常见“卡住不动”“按钮不好点”“切人后界面不对”的问题已做多轮修复。
-- 按钮和入口交互已经过持续打磨，新玩家上手成本更低。
+## Features
 
-## 建议你这样体验
+- Local multiplayer party of 2–12 characters, started from the normal multiplayer menu (`Multiplayer → Host → Local Multi-Control`)
+- Instant character switching in and out of combat: `Tab` / `Shift+Tab` (legacy `[` `]` `R` `T` `/` still work)
+- Per-character everything: decks, energy, gold, potions, relics, event choices, reward claims
+- Full run flow: lobby → combat → rewards → map → events → shops → rest sites → treasure → next act → save/continue
+- **Vakuu (AI auto-play)**: hand any character over to the built-in autoplayer, per character or all at once
+- Optional **ghost hands** overlay (`F8`): see your other characters' hands behind your own, position adjustable at runtime (`Ctrl+Arrows`)
+- Pure code mod: `has_dll=true`, `has_pck=false` — no asset pack required
 
-1. 先用 2 人开局，熟悉切人按钮和切换节奏。
-2. 重点体验：战斗切人、事件选择、领奖励这三段是否顺手。
-3. 若遇到异常，优先记录“在哪一幕、哪个界面、做了什么操作”再反馈，定位会更快。
+See the **[Player Guide](PLAYER_GUIDE.md)** for installation, controls, and gameplay details.
 
-## 当前能力（开发视角）
+## Compatibility
 
-- 本地多人组队：支持 2~12 人。
-- 角色控制切换：支持热键切换与界面按钮切换。
-- 战斗/选人/大厅关键界面补丁：提供可视化切人操作。
-- 关键流程同步：覆盖奖励、事件、商店、遗物/药水等核心链路。
+Currently built against game version **v0.109.0** (July 2026). When the game patches, expect a short turnaround for a compatibility release — that is this fork's primary job.
 
-## baselib 使用状态
+## Installation
 
-- 当前 **未使用 baselib**。
+**Steam Workshop (recommended):** subscribe to the Workshop item, then enable the mod in `Settings → Mods`.
 
-## 目录说明
+**Manual:** download `DualRoleAdventure.dll` + `DualRoleAdventure.json` from [Releases](https://github.com/GuyGinat/STS2_DualRoleAdventure/releases) and place both in:
 
-```text
-src/Mods/LocalMultiControl/
-├─ Scripts/
-│  ├─ Entry.cs
-│  ├─ Patch/
-│  └─ Runtime/
-├─ LocalMultiControl.csproj
-├─ mod_manifest.json
-├─ README.md
-└─ CHANGELOG.md
+```
+<Slay the Spire 2 install>\mods\DualRoleAdventure\
 ```
 
-## 构建与检查
+## Building from source
 
-在 `src/Mods/LocalMultiControl` 目录执行：
+Requirements: .NET SDK 9, a Slay the Spire 2 install.
 
-```powershell
+1. Point `<Sts2Dir>` in `LocalMultiControl.csproj` at your game install (it is OS-conditional: a Windows path and a WSL `/mnt/c/...` path are both preconfigured — edit yours).
+2. Build:
+
+```bash
 dotnet restore LocalMultiControl.csproj
-dotnet build LocalMultiControl.csproj -c Debug
-dotnet format LocalMultiControl.csproj --verify-no-changes
+dotnet build LocalMultiControl.csproj -c Release
+dotnet format LocalMultiControl.csproj --verify-no-changes   # style gate
 ```
 
-## 部署与联调
+3. The build copies `DualRoleAdventure.dll` to the repo root. Deploy it plus `DualRoleAdventure.json` to the game's `mods/DualRoleAdventure/` folder (`copy_pck_to_game.ps1` does this — adjust its target path to your install).
 
-1. 导出 pck：
+For game-API reference during development, decompile `sts2.dll` into `src/` (gitignored, read-only):
 
-```powershell
-& "C:\Users\temp\项目\杀戮尖塔2Mod\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --path . --export-pack "Windows Desktop" DualRoleAdventure.pck
+```bash
+dotnet tool install -g ilspycmd --version 9.1.0.7988
+ilspycmd -p --nested-directories -o /tmp/sts2-src "<game>/data_sts2_windows_x86_64/sts2.dll"
+cp -r /tmp/sts2-src/MegaCrit/Sts2/. src/
 ```
 
-2. 复制到游戏目录：
+## Reporting issues
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\copy_pck_to_game.ps1
-```
+Please open a [GitHub issue](https://github.com/GuyGinat/STS2_DualRoleAdventure/issues) and include: act number, screen/room, exact steps, and if possible the log file at `%APPDATA%\SlayTheSpire2\logs\godot.log` (mod entries are prefixed `[LocalMultiControl]`).
 
-3. 启动游戏：
+## Documentation
 
-```powershell
-Start-Process "steam://rungameid/2868840"
-```
+- [Player Guide](PLAYER_GUIDE.md) — install, controls, gameplay
+- [CHANGELOG](CHANGELOG.md) — release history
+- [TODO](TODO.md) — known issues under investigation
+- [docs/architecture.md](docs/architecture.md) — how the mod works internally
+- [docs/console-commands.md](docs/console-commands.md) — dev-console commands for testing
+- [docs/design/](docs/design/) — original design documents (translated)
+- [docs/archive/](docs/archive/) — original Chinese documents preserved as-is
 
-说明：部署使用项目根产物 `DualRoleAdventure.dll` 与 `DualRoleAdventure.pck`。
+## Credits & license
 
-## 发布说明
+- Original author: **liwenhao0427 (磁石战士Ω)** — design and the entire v0.1–v1.30 implementation. If this mod helps you, consider buying them a coffee:
 
-- 默认支持快速发版：若项目根已有最新 `DualRoleAdventure.dll` 与 `DualRoleAdventure.pck`，可直接创建 tag + GitHub Release。
-- 仅在用户明确要求重编译/重导出或产物缺失时，执行完整构建与导出流程。
+  <img src="donate-original-author.jpeg" alt="Donate to the original author" width="200" />
 
-## 玩家反馈与任务台账（飞书多维表格）
+- Maintainer (v1.31+): [GuyGinat](https://github.com/GuyGinat)
 
-- 任务管理表（AI 与开发台账）：
-  - https://my.feishu.cn/wiki/B17OwI4Ymi8E7skp339cFiRHnnf?table=tblsr2MTjWeiuNZ8&view=vewXxBNTOK
-- 玩家反馈处理结果（开发侧结果看板）：
-  - https://my.feishu.cn/wiki/B17OwI4Ymi8E7skp339cFiRHnnf?table=tblosEdrnEI0L77n&view=vewjPpNXxV
-- 玩家问卷表单（当前使用，玩家可直接提交 Bug/建议）：
-  - https://my.feishu.cn/share/base/form/shrcn5DNr4nXrBDHMkLrHaEaVyh
-
-### 字段约定
-
-- 主任务表（`✅任务管理`）新增字段：
-  - `数据来源`：`AI整理` / `玩家问卷`
-  - `开发状态`：`待确认` / `开发中` / `已完成` / `已拒绝`
-  - `任务分类`：`Bug修复` / `需求` / `发布` / `优化`
-  - `提交参考`：对应 git commit 摘要（hash + subject）
-- 玩家问卷表（`📝玩家反馈问卷`）核心字段：
-  - `反馈标题`
-  - `反馈详情`
-  - `反馈分类`（Bug/建议）
-  - `来源`（默认玩家问卷）
-  - `开发状态`
-  - `提交时间`
-  - `联系方式`（选填）
-  - `游戏版本`
-  - `复现步骤`
-
-### 使用建议
-
-1. 玩家通过“玩家问卷表单”提交后，先将 `开发状态` 标成 `待确认`。
-2. 评审后将确认项同步到主任务表，`数据来源` 填 `玩家问卷`。
-3. 开发完成时同步更新两表状态，保证“玩家视角”和“开发视角”可追踪。
-
-### Codex Skill（开发者）
-
-- 技能文档：`skills/feishu-bitable-sync/SKILL.md`
-- 同步脚本：`Scripts/Tools/SyncFeishuTask.ps1`
-- 常用命令：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\Scripts\Tools\SyncFeishuTask.ps1 `
-  -TaskDescription "本次任务标题" `
-  -LatestNote "本次完成内容摘要" `
-  -Progress "已完成" `
-  -DevStatus "已完成" `
-  -Category "Bug修复" `
-  -Source "AI整理"
-```
-
-## 支持作者
-
-如果这个 Mod 对你有帮助，欢迎请作者喝杯咖啡 ☕
-
-<img src="捐赠支持作者开发.jpeg" alt="捐赠支持作者开发" width="200" />
-
-## 修改日志（重要里程碑）
-
-详细记录见 [CHANGELOG.md](./CHANGELOG.md)。
-
-- `v0.1.9`（2026-03-15）：修复休息区与事件“强制每人各处理一次”，并恢复宝箱切人后鼠标可见。
-- `v0.1.3`（2026-03-15）：切人与加减按钮样式重做（图标化、镜像、间距与位置微调），提升战斗/选人 UI 一致性。
-- `v0.1.2`（2026-03-14）：发版规范升级为快速发布流程。
-- `v0.1.1-clearable`（2026-03-14）：修复入战斗 UI 显示与共享事件自动代投关键问题。
-- `v0.1.0-initial-usable`（2026-03-13）：形成可用最小闭环，打通本地多控基础流程。
+There is no formal open-source license yet; the original author granted written permission (2026-07-27) for this fork to maintain and distribute the mod. Until a LICENSE file lands, treat the source as *source-available for personal use* — ask before redistributing derivatives.
