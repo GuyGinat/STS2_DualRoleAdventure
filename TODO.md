@@ -113,3 +113,11 @@ ERROR: System.InvalidOperationException: Attempted to pick relic while relic pic
 [INFO] [LocalMultiControl] 药水已固定归属1号位: FIRE_POTION, from=76561198388115947, to=76561198388115946
 [WARN] [LocalMultiControl] 跳过药水动画：当前视图不存在药水 FIRE_POTION
 ```
+
+---
+
+## Issue 5: Silken Tress — Glam enchant not applied (Workshop report, 2026-07-28)
+
+**Report (issaclai27, Workshop comments, on v1.31 / game v0.109):** picking up Silken Tress removed all gold as expected, but the first card reward afterwards had no card enchanted with Glam.
+
+**Suspected area:** the relic's on-pickup / next-reward hook is probably keyed to the owning player, while the mod's cross-player card-reward rebuild (see Issue 1, `Scripts/Patch/CardRewardPatch.cs`) regenerates the reward list without carrying per-player pending enchant state. Unconfirmed — reproduce on v0.111.0 first.
