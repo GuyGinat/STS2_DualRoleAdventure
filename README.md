@@ -18,7 +18,7 @@ See the **[Player Guide](PLAYER_GUIDE.md)** for installation, controls, and game
 
 ## Compatibility
 
-Currently built against game version **v0.109.0** (July 2026). When the game patches, expect a short turnaround for a compatibility release — that is this fork's primary job.
+Currently built against game version **v0.111.0** (August 2026). When the game patches, expect a short turnaround for a compatibility release — that is this fork's primary job.
 
 ## Installation
 

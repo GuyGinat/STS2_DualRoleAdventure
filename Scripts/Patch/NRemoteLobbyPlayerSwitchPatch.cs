@@ -74,7 +74,7 @@ internal static class LocalRemoteLobbyPlayerSwitchUi
                           && !RunManager.Instance.IsInProgress
                           && screen != null
                           && LocalSelfCoopContext.LocalPlayerIds.Contains(playerNode.PlayerId);
-        bool showControllerHints = NControllerManager.Instance?.IsUsingController ?? false;
+        bool showControllerHints = NControllerManager.Instance?.InputType == InputType.Controller;
 
         button.Visible = shouldShow;
         wakuuToggle.Visible = shouldShow;
@@ -316,7 +316,7 @@ internal static class LocalRemoteLobbyPlayerSwitchUi
 
         List<NRemoteLobbyPlayer> localNodes = GetLocalLobbyNodes(screen);
         bool shouldShow = LocalSelfCoopContext.IsEnabled && !RunManager.Instance.IsInProgress && localNodes.Count > 0;
-        bool showControllerHints = NControllerManager.Instance?.IsUsingController ?? false;
+        bool showControllerHints = NControllerManager.Instance?.InputType == InputType.Controller;
         toggle.Visible = shouldShow;
         label.Visible = shouldShow;
         ltIcon.Visible = shouldShow && showControllerHints;

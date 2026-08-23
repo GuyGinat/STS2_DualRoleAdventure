@@ -4,6 +4,25 @@ Notable versions and key changes of `LocalMultiControl` / `DualRoleAdventure`. E
 
 ## [Unreleased]
 
+## [v1.32] - 2026-08-23
+
+Compatibility release. The mod stopped loading after the game's v0.110.0 / v0.111.0 patches
+(reported on the Workshop page by several players).
+
+### Fixed
+- Adapted to game v0.111.0 (2026-08-13). Compile-level API breaks since v0.109.0:
+  - `LobbyPlayer` was renamed `StartRunLobbyPlayer` (same layout; the 16-player slot-id bit-width transpilers now target it).
+  - `INetGameService` gained `LocalVersion`; `INetHostGameService` gained `ClientConnectionFailed` and `GetVersionInfoForPeer`. The loopback service reports `PeerVersionInfo.LocalDefault()` for every peer — the game dereferences `GetVersionInfoForPeer(...).Value` unguarded in all three lobbies, so it must never be null.
+  - `ILoadRunLobbyListener.PlayerConnected` now takes a `LoadRunLobbyPlayer` instead of a `ulong`.
+  - `LoadRunLobby` dropped `ConnectedPlayerIds` and the private `_readyPlayers` set; membership and readiness both live in the public `Players` list of `LoadRunLobbyPlayer` structs. The load-save auto-ready patch now adds/readies the other local characters in that list (previously it reflected on `_readyPlayers`, which would have silently done nothing).
+  - `StartRunLobby.MaxPlayers` became the private readonly field `_maxPlayers`; the 12-character capacity raise now targets that field.
+  - `NControllerManager.IsUsingController` was removed; controller-hint checks use `InputType == InputType.Controller`.
+- Runtime (string-reflection) break: `CombatManager._playersReadyToBeginEnemyTurn` no longer exists. Combat ready sets moved into an internal `CombatTurnState` (`_turnState`) guarded by `ReadyLock`, and the player→enemy transition is now a `BeginEnemyTurnSignalSource` task awaited by the turn loop. The enemy-turn auto-ready patch now mirrors readiness into `turnState.PlayersReadyToBeginEnemyTurn` under the lock, and its fallback completes the signal (idempotent) instead of invoking `AfterAllPlayersReadyToBeginEnemyTurn` directly, which would now run the transition twice.
+
+### Notes
+- Static sweep of all string-based Harmony/reflection targets against decompiled v0.111.0: 163 resolve. Remaining misses are the intentional legacy-name fallbacks (`BeginRunIfAllPlayersReady`) and the already-guarded `NRestSiteRoom.UpdateNavigation`.
+- Unverified in-game at time of writing — needs a playtest pass (lobby → combat end-turn with 2+ characters → rewards → save/continue).
+
 ## [v1.31] - 2026-07-27
 
 First community-maintained release. The original author (liwenhao0427) discontinued

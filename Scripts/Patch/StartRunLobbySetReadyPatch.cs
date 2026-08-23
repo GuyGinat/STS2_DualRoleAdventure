@@ -21,7 +21,7 @@ internal static class StartRunLobbySetReadyPatch
         bool hasChange = false;
         for (int i = 0; i < __instance.Players.Count; i++)
         {
-            LobbyPlayer player = __instance.Players[i];
+            StartRunLobbyPlayer player = __instance.Players[i];
             if (!player.isReady)
             {
                 player.isReady = true;

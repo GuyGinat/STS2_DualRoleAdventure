@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
+using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Multiplayer.Messages.Game;
 using MegaCrit.Sts2.Core.Multiplayer.Messages.Game.Sync;
@@ -47,11 +48,22 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
 
     public NetHost? NetHost => null;
 
+    // v0.111.0: every loopback peer is this same game instance, so the local
+    // version info is the correct answer for all of them. The game's lobbies
+    // dereference GetVersionInfoForPeer(...).Value unguarded, so never return null
+    // for a connected peer.
+    public PeerVersionInfo LocalVersion => PeerVersionInfo.LocalDefault();
+
     public event Action<NetErrorInfo>? Disconnected;
 
     public event Action<ulong>? ClientConnected;
 
     public event Action<ulong, NetErrorInfo>? ClientDisconnected;
+
+    // v0.111.0: handshake failures cannot happen on the loopback; never raised.
+#pragma warning disable CS0067
+    public event Action<ulong, NetErrorInfo>? ClientConnectionFailed;
+#pragma warning restore CS0067
 
     public void SetCurrentSenderId(ulong playerId)
     {
@@ -187,6 +199,11 @@ internal sealed class LocalLoopbackHostGameService : INetHostGameService
     {
         LocalMultiControlLogger.Warn($"本地回环请求断开客户端被忽略: peer={peerId}, reason={reason}, now={now}");
         ClientDisconnected?.Invoke(peerId, new NetErrorInfo(reason, selfInitiated: true));
+    }
+
+    public PeerVersionInfo? GetVersionInfoForPeer(ulong peerId)
+    {
+        return LocalVersion;
     }
 
     public void SetPeerReadyForBroadcasting(ulong peerId)

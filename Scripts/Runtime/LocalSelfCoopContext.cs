@@ -459,7 +459,7 @@ internal static class LocalSelfCoopContext
                 continue;
             }
 
-            LobbyPlayer removedPlayer = lobby.Players[playerIndex];
+            StartRunLobbyPlayer removedPlayer = lobby.Players[playerIndex];
             lobby.Players.RemoveAt(playerIndex);
             lobby.InputSynchronizer.OnPlayerDisconnected(removedPlayer.id);
             screen.RemotePlayerDisconnected(removedPlayer);
@@ -478,7 +478,7 @@ internal static class LocalSelfCoopContext
                 continue;
             }
 
-            LobbyPlayer lobbyPlayer = lobby.Players[playerIndex];
+            StartRunLobbyPlayer lobbyPlayer = lobby.Players[playerIndex];
             if (lobbyPlayer.isReady)
             {
                 continue;
@@ -506,7 +506,7 @@ internal static class LocalSelfCoopContext
 
         for (int i = 0; i < lobby.Players.Count; i++)
         {
-            LobbyPlayer player = lobby.Players[i];
+            StartRunLobbyPlayer player = lobby.Players[i];
             if (player.maxMultiplayerAscensionUnlocked >= MaxLocalAscensionLevel)
             {
                 continue;
@@ -541,15 +541,22 @@ internal static class LocalSelfCoopContext
         }
     }
 
+
+    // v0.111.0: StartRunLobby.MaxPlayers became the private readonly field _maxPlayers.
+    private static int GetLobbyMaxPlayers(StartRunLobby lobby)
+    {
+        return AccessTools.Field(typeof(StartRunLobby), "_maxPlayers")?.GetValue(lobby) as int? ?? 0;
+    }
+
     private static void EnsureLobbyMaxCapacity(StartRunLobby lobby)
     {
-        if (lobby.MaxPlayers >= MaxLocalPlayerCount)
+        if (GetLobbyMaxPlayers(lobby) >= MaxLocalPlayerCount)
         {
             return;
         }
 
-        int oldMaxPlayers = lobby.MaxPlayers;
-        AccessTools.Field(typeof(StartRunLobby), "<MaxPlayers>k__BackingField")?.SetValue(lobby, MaxLocalPlayerCount);
+        int oldMaxPlayers = GetLobbyMaxPlayers(lobby);
+        AccessTools.Field(typeof(StartRunLobby), "_maxPlayers")?.SetValue(lobby, MaxLocalPlayerCount);
         LocalMultiControlLogger.Info($"宸叉彁鍗囧ぇ鍘呮渶澶у閲? {oldMaxPlayers} -> {MaxLocalPlayerCount}");
     }
 
@@ -619,7 +626,7 @@ internal static class LocalSelfCoopContext
                 return;
             }
 
-            LobbyPlayer localPlayer = lobby.Players[localPlayerIndex];
+            StartRunLobbyPlayer localPlayer = lobby.Players[localPlayerIndex];
             Control? charButtonContainer = AccessTools.Field(typeof(NCharacterSelectScreen), "_charButtonContainer")
                 ?.GetValue(ActiveCharacterSelectScreen) as Control;
             if (charButtonContainer == null)
@@ -630,7 +637,7 @@ internal static class LocalSelfCoopContext
             List<NCharacterSelectButton> buttons = charButtonContainer.GetChildren().OfType<NCharacterSelectButton>().ToList();
             foreach (NCharacterSelectButton button in buttons)
             {
-                foreach (LobbyPlayer player in lobby.Players)
+                foreach (StartRunLobbyPlayer player in lobby.Players)
                 {
                     button.OnRemotePlayerDeselected(player.id);
                 }
@@ -647,7 +654,7 @@ internal static class LocalSelfCoopContext
                 }
             }
 
-            foreach (LobbyPlayer player in lobby.Players)
+            foreach (StartRunLobbyPlayer player in lobby.Players)
             {
                 if (player.id == localPlayer.id)
                 {

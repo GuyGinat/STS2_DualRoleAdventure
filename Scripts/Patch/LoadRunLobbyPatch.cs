@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using LocalMultiControl.Scripts.Runtime;
+using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer.Game.Lobby;
 
 namespace LocalMultiControl.Scripts.Patch;
@@ -27,38 +28,13 @@ internal static class LoadRunLobbyPatch
             return;
         }
 
-        HashSet<ulong>? readyPlayers = AccessTools.Field(typeof(LoadRunLobby), "_readyPlayers")?.GetValue(__instance) as HashSet<ulong>;
+        // v0.111.0: LoadRunLobby no longer keeps ConnectedPlayerIds/_readyPlayers sets;
+        // membership and readiness both live in the public Players list of
+        // LoadRunLobbyPlayer structs, so we mirror the host's ready state onto
+        // every other local character there.
+        List<LoadRunLobbyPlayer> players = __instance.Players;
         ulong localHostId = __instance.NetService.NetId;
-
-        if (ready)
-        {
-            foreach (ulong playerId in localPlayerIdsInRun)
-            {
-                if (playerId == localHostId)
-                {
-                    continue;
-                }
-
-                if (__instance.ConnectedPlayerIds.Add(playerId))
-                {
-                    __instance.LobbyListener.PlayerConnected(playerId);
-                }
-
-                if (readyPlayers != null && readyPlayers.Add(playerId))
-                {
-                    __instance.LobbyListener.PlayerReadyChanged(playerId);
-                }
-            }
-
-            InvokeBeginRunIfAllPlayersReady(__instance);
-            LocalMultiControlLogger.Info($"本地多控读档自动就绪: players={string.Join(",", localPlayerIdsInRun)}");
-            return;
-        }
-
-        if (readyPlayers == null)
-        {
-            return;
-        }
+        bool isModded = __instance.NetService.LocalVersion.IsModded();
 
         foreach (ulong playerId in localPlayerIdsInRun)
         {
@@ -67,10 +43,40 @@ internal static class LoadRunLobbyPatch
                 continue;
             }
 
-            if (readyPlayers.Remove(playerId))
+            int index = players.FindIndex((player) => player.id == playerId);
+            if (index < 0)
             {
-                __instance.LobbyListener.PlayerReadyChanged(playerId);
+                LoadRunLobbyPlayer newPlayer = new LoadRunLobbyPlayer
+                {
+                    id = playerId,
+                    isModded = isModded,
+                    isReady = ready,
+                };
+                players.Add(newPlayer);
+                __instance.LobbyListener.PlayerConnected(newPlayer);
+                if (ready)
+                {
+                    __instance.LobbyListener.PlayerReadyChanged(playerId);
+                }
+
+                continue;
             }
+
+            LoadRunLobbyPlayer existing = players[index];
+            if (existing.isReady == ready)
+            {
+                continue;
+            }
+
+            existing.isReady = ready;
+            players[index] = existing;
+            __instance.LobbyListener.PlayerReadyChanged(playerId);
+        }
+
+        if (ready)
+        {
+            InvokeBeginRunIfAllPlayersReady(__instance);
+            LocalMultiControlLogger.Info($"本地多控读档自动就绪: players={string.Join(",", localPlayerIdsInRun)}");
         }
     }
 

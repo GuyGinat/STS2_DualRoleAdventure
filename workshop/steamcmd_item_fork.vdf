@@ -1,8 +1,8 @@
 "workshopitem"
 {
 	"appid"		"2868840"
-	"contentfolder"		"C:\\Users\\DELL\\Desktop\\Guy\\sts\\STS2_DualRoleAdventure\\workshop\\content"
-	"previewfile"		"C:\\Users\\DELL\\Desktop\\Guy\\sts\\STS2_DualRoleAdventure\\workshop\\preview.jpg"
+	"contentfolder"		"C:\\Users\\User\\Desktop\\guy\\WebDev\\STS2_DualRoleAdventure\\workshop\\content"
+	"previewfile"		"C:\\Users\\User\\Desktop\\guy\\WebDev\\STS2_DualRoleAdventure\\workshop\\preview.jpg"
 	"visibility"		"0"
 	"title"		"Local Multi-Control — Solo Multiplayer, 2–12 Characters | 本地多角色"
 	"description"		"[h1]Local Multi-Control (DualRoleAdventure)[/h1]
@@ -19,13 +19,13 @@ Play Slay the Spire 2's official multiplayer entirely by yourself: control 2–1
 [/list]
 
 [h2]Heritage[/h2]
-Created by 磁石战士Ω (liwenhao0427), who designed and built everything up to v1.30 before discontinuing in June 2026. They gave written permission for this continuation and link here from the original item. This version (v1.31+) is actively maintained — currently updated for game v0.109.0. Original item: https://steamcommunity.com/sharedfiles/filedetails/?id=3747538947
+Created by 磁石战士Ω (liwenhao0427), who designed and built everything up to v1.30 before discontinuing in June 2026. They gave written permission for this continuation and link here from the original item. This version (v1.31+) is actively maintained — currently updated for game v0.111.0. Original item: https://steamcommunity.com/sharedfiles/filedetails/?id=3747538947
 
 [h2]Feedback & source[/h2]
 https://github.com/GuyGinat/STS2_DualRoleAdventure — report bugs via GitHub Issues with your act, screen, steps, and the log from %APPDATA%/SlayTheSpire2/logs/godot.log
 
 [h2]中文简介[/h2]
 单人操控 2–12 名角色的本地多控 Mod。进入方式：多人模式 → 创建 → 单人多角色；Tab 切换角色，F8 显示队友手牌。原作者 磁石战士Ω 已授权本条目接手维护（原版条目见上方链接）；反馈请到 GitHub Issues。"
-	"changenote"		"Metadata update: English title and description; in-game mod name now bilingual (Local Multi-Control / 多角色冒险)."
+	"changenote"		"v1.32: compatibility release for game v0.111.0 (Aug 13). Fixes the mod failing to load after the v0.110/v0.111 patches. 适配游戏 v0.111.0。"
 	"publishedfileid"		"3772900244"
 }

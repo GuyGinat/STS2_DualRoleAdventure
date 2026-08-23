@@ -55,14 +55,14 @@ internal static class LocalPlayerLimitNetworkPatch
         private static void Prefix(ref int maxClients) => maxClients = Math.Max(maxClients, TargetPlayerLimit);
     }
 
-    [HarmonyPatch(typeof(LobbyPlayer), nameof(LobbyPlayer.Serialize))]
+    [HarmonyPatch(typeof(StartRunLobbyPlayer), nameof(StartRunLobbyPlayer.Serialize))]
     private static class LobbyPlayerSerializePatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) =>
             ReplaceBitWidthBeforeCall(instructions, WriterWriteIntWithBitsMethod, VanillaSlotIdBits, TargetSlotIdBits, nameof(LobbyPlayerSerializePatch));
     }
 
-    [HarmonyPatch(typeof(LobbyPlayer), nameof(LobbyPlayer.Deserialize))]
+    [HarmonyPatch(typeof(StartRunLobbyPlayer), nameof(StartRunLobbyPlayer.Deserialize))]
     private static class LobbyPlayerDeserializePatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) =>

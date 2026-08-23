@@ -263,7 +263,7 @@ internal static class LocalCharacterSelectCountButtons
 
     private static void RefreshHintIcons(Control panel, float secondColumnX, float secondRowY)
     {
-        bool shouldShowHints = NControllerManager.Instance?.IsUsingController ?? false;
+        bool shouldShowHints = NControllerManager.Instance?.InputType == InputType.Controller;
         Texture2D? lt = NControllerManager.Instance?.GetHotkeyIcon(Controller.leftTrigger);
         Texture2D? left = NControllerManager.Instance?.GetHotkeyIcon(Controller.dPadLeft);
         Texture2D? right = NControllerManager.Instance?.GetHotkeyIcon(Controller.dPadRight);

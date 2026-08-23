@@ -480,7 +480,7 @@ internal static class RestSiteUiRefreshUtil
 
     private static void EnsureControllerFocus(NRestSiteRoom room, string source)
     {
-        if (!(NControllerManager.Instance?.IsUsingController ?? false))
+        if (!(NControllerManager.Instance?.InputType == InputType.Controller))
         {
             return;
         }
