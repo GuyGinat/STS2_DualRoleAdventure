@@ -21,7 +21,7 @@ Compatibility release. The mod stopped loading after the game's v0.110.0 / v0.11
 
 ### Notes
 - Static sweep of all string-based Harmony/reflection targets against decompiled v0.111.0: 163 resolve. Remaining misses are the intentional legacy-name fallbacks (`BeginRunIfAllPlayersReady`) and the already-guarded `NRestSiteRoom.UpdateNavigation`.
-- Unverified in-game at time of writing — needs a playtest pass (lobby → combat end-turn with 2+ characters → rewards → save/continue).
+- Playtested in-game on v0.111.0 (2026-08-23): mod loads clean and a multi-character run plays correctly.
 
 ## [v1.31] - 2026-07-27
 
