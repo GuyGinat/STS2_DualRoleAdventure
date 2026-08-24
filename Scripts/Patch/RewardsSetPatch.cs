@@ -15,6 +15,11 @@ using MegaCrit.Sts2.Core.TestSupport;
 
 namespace LocalMultiControl.Scripts.Patch;
 
+// NOTE: since the Silken Tress fix, the PRIMARY merge point for post-combat rewards is
+// CombatRoomOfferRewardsPatch (CombatRoom.OfferRoomEndRewards), which generates each player's
+// set exactly once. The merged branch below is a BACKSTOP for other callers of Offer; it still
+// regenerates per player, so one-shot generation-time relics would misbehave if it ever ran for
+// a combat room — TryMarkRoomMerged normally prevents that.
 [HarmonyPatch(typeof(RewardsSet), nameof(RewardsSet.Offer))]
 internal static class RewardsSetPatch
 {

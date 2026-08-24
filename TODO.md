@@ -116,8 +116,8 @@ ERROR: System.InvalidOperationException: Attempted to pick relic while relic pic
 
 ---
 
-## Issue 5: Silken Tress — Glam enchant not applied (Workshop report, 2026-07-28)
+## ~~Issue 5: Silken Tress — Glam enchant not applied~~ (FIXED, unreleased)
 
 **Report (issaclai27, Workshop comments, on v1.31 / game v0.109):** picking up Silken Tress removed all gold as expected, but the first card reward afterwards had no card enchanted with Glam.
 
-**Suspected area:** the relic's on-pickup / next-reward hook is probably keyed to the owning player, while the mod's cross-player card-reward rebuild (see Issue 1, `Scripts/Patch/CardRewardPatch.cs`) regenerates the reward list without carrying per-player pending enchant state. Unconfirmed — reproduce on v0.111.0 first.
+**Root cause (confirmed by code trace):** double generation. Vanilla `CombatRoom.OfferRoomEndRewards` generates all players' reward sets (hooks run, Silken Tress enchants + burns its one-shot `IsUsed`) before calling `Offer`; the mod's merge patch on `Offer` discarded those sets and regenerated — the second pass saw `IsUsed == true`. Fixed by moving the merge up to `CombatRoom.OfferRoomEndRewards` (`Scripts/Patch/CombatRoomOfferRewardsPatch.cs`) so generation happens exactly once. Needs an in-game verification run (Neow → take Silken Tress → first combat reward should offer Glam cards).

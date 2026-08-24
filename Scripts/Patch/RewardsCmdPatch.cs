@@ -20,6 +20,9 @@ namespace LocalMultiControl.Scripts.Patch;
 /// 然后将所有角色的奖励汇总到一个列表展示，每个奖励标识对应角色。
 /// 这样遗物翻倍、上等好货因子、猎人狩猎等效果能正确按角色独立生效。
 /// </summary>
+// NOTE: since the Silken Tress fix, the PRIMARY merge point for post-combat rewards is
+// CombatRoomOfferRewardsPatch (CombatRoom.OfferRoomEndRewards). This patch remains as a
+// backstop for direct OfferForRoomEnd callers; TryMarkRoomMerged dedupes between the two.
 [HarmonyPatch(typeof(RewardsCmd), nameof(RewardsCmd.OfferForRoomEnd))]
 internal static class RewardsCmdPatch
 {

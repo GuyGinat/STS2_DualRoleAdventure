@@ -4,6 +4,9 @@ Notable versions and key changes of `LocalMultiControl` / `DualRoleAdventure`. E
 
 ## [Unreleased]
 
+### Fixed
+- Silken Tress (and any other one-shot, generation-time reward modifier) losing its effect in multi-character runs (Workshop report, 2026-07-28). Vanilla `CombatRoom.OfferRoomEndRewards` generates every player's `RewardsSet` — running the card-reward modify hooks and burning Silken Tress's one-shot `IsUsed` — before calling `Offer`; the mod's merge patch on `Offer` then discarded those sets and regenerated, so the Glam-enchanted cards existed only on the invisible first pass. The merge point moved up to `CombatRoom.OfferRoomEndRewards` itself (`CombatRoomOfferRewardsPatch`): each set is generated exactly once, the reward RNG no longer advances twice, and `Hook.BeforeCombatRewardOffered` now fires on the sets that are actually displayed (previously it only ran on the discarded ones). The `Offer`/`OfferForRoomEnd` merge patches remain as deduped backstops.
+
 ## [v1.32] - 2026-08-23
 
 Compatibility release. The mod stopped loading after the game's v0.110.0 / v0.111.0 patches
