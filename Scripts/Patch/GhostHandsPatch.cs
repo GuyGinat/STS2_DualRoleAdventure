@@ -36,43 +36,8 @@ internal static class GhostHandsHotkeysPatch
             return;
         }
 
-        if (!LocalGhostHandsRuntime.Enabled || !keyEvent.CtrlPressed)
-        {
-            return;
-        }
-
-        Vector2 direction = Vector2.Zero;
-        if (keycode == Key.Left || physicalKeycode == Key.Left)
-        {
-            direction = Vector2.Left;
-        }
-        else if (keycode == Key.Right || physicalKeycode == Key.Right)
-        {
-            direction = Vector2.Right;
-        }
-        else if (keycode == Key.Up || physicalKeycode == Key.Up)
-        {
-            direction = Vector2.Up;
-        }
-        else if (keycode == Key.Down || physicalKeycode == Key.Down)
-        {
-            direction = Vector2.Down;
-        }
-
-        if (direction == Vector2.Zero)
-        {
-            return;
-        }
-
-        if (keyEvent.Pressed)
-        {
-            // Echo events included: holding the arrow keeps nudging.
-            float step = keyEvent.ShiftPressed ? 4f : 20f;
-            LocalGhostHandsRuntime.Nudge(direction.X * step, direction.Y * step);
-        }
-        else if (keyEvent.IsReleased())
-        {
-            LocalGhostHandsRuntime.CommitOffsets();
-        }
+        // Ctrl+Arrows repositioning moved to LocalGhostHandsOverlay.PollMoveKeys —
+        // arrow-key events can be consumed by other nodes before reaching NGame._Input
+        // (Ctrl+Right never arrived), so the overlay polls raw key state instead.
     }
 }

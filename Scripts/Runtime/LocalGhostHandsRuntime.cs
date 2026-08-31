@@ -74,6 +74,7 @@ internal static class LocalGhostHandsRuntime
         LoadConfigIfNeeded();
         OffsetX += deltaX;
         OffsetY += deltaY;
+        ClampOffsetsToScreen();
 
         ulong nowMs = Time.GetTicksMsec();
         if (nowMs - _lastNudgeSaveMs > NudgeSaveThrottleMs)
@@ -82,6 +83,19 @@ internal static class LocalGhostHandsRuntime
             SaveConfig();
             LocalMultiControlLogger.Info($"Ghost hands offset: ({OffsetX:F0}, {OffsetY:F0})");
         }
+    }
+
+    /// <summary>
+    /// Keeps the overlay reachable on screen. LayoutRow places rows at
+    /// (viewport.X * 0.5 + OffsetX, viewport.Y + OffsetY), so these bounds keep the
+    /// row anchor visible. Also applied to loaded config, so a position saved
+    /// off-screen (Workshop report, 2026-08-26) heals itself on next launch.
+    /// </summary>
+    public static void ClampOffsetsToScreen()
+    {
+        Vector2 viewport = NGame.Instance?.GetViewport()?.GetVisibleRect().Size ?? new Vector2(1920f, 1080f);
+        OffsetX = Mathf.Clamp(OffsetX, -viewport.X * 0.5f + 100f, viewport.X * 0.5f - 100f);
+        OffsetY = Mathf.Clamp(OffsetY, -viewport.Y + 60f, 0f);
     }
 
     public static void CommitOffsets()
@@ -161,6 +175,7 @@ internal static class LocalGhostHandsRuntime
                 GhostScale = Mathf.Clamp((float)scale.AsDouble(), 0.2f, 1.5f);
             }
 
+            ClampOffsetsToScreen();
             LocalMultiControlLogger.Info($"Ghost hands config loaded: enabled={Enabled}, offset=({OffsetX:F0}, {OffsetY:F0}), scale={GhostScale:F2}");
         }
         catch (Exception exception)
@@ -212,8 +227,12 @@ internal sealed partial class LocalGhostHandsOverlay : Control
         public Label SlotLabel = null!;
     }
 
+    private const float MoveSpeedPixelsPerSec = 600f;
+    private const float FineMoveSpeedPixelsPerSec = 120f;
+
     private readonly List<GhostRow> _rows = new();
     private double _sinceRefresh = RefreshIntervalSec;
+    private bool _wasNudging;
 
     public override void _Ready()
     {
@@ -224,6 +243,8 @@ internal sealed partial class LocalGhostHandsOverlay : Control
 
     public override void _Process(double delta)
     {
+        PollMoveKeys(delta);
+
         _sinceRefresh += delta;
         if (_sinceRefresh < RefreshIntervalSec)
         {
@@ -244,6 +265,60 @@ internal sealed partial class LocalGhostHandsOverlay : Control
     public override void _ExitTree()
     {
         ClearRows();
+    }
+
+    /// <summary>
+    /// Ctrl+Arrows repositioning, polled per frame instead of handled in NGame._Input:
+    /// other nodes consume some arrow-key events before they reach NGame (Ctrl+Right
+    /// never arrived — Workshop report, 2026-08-26), and polling sees the raw key state.
+    /// </summary>
+    private void PollMoveKeys(double delta)
+    {
+        if (!LocalGhostHandsRuntime.Enabled || !Input.IsKeyPressed(Key.Ctrl))
+        {
+            FinishNudgeIfNeeded();
+            return;
+        }
+
+        Vector2 direction = Vector2.Zero;
+        if (Input.IsPhysicalKeyPressed(Key.Left))
+        {
+            direction += Vector2.Left;
+        }
+
+        if (Input.IsPhysicalKeyPressed(Key.Right))
+        {
+            direction += Vector2.Right;
+        }
+
+        if (Input.IsPhysicalKeyPressed(Key.Up))
+        {
+            direction += Vector2.Up;
+        }
+
+        if (Input.IsPhysicalKeyPressed(Key.Down))
+        {
+            direction += Vector2.Down;
+        }
+
+        if (direction == Vector2.Zero)
+        {
+            FinishNudgeIfNeeded();
+            return;
+        }
+
+        _wasNudging = true;
+        float speed = Input.IsKeyPressed(Key.Shift) ? FineMoveSpeedPixelsPerSec : MoveSpeedPixelsPerSec;
+        LocalGhostHandsRuntime.Nudge(direction.X * speed * (float)delta, direction.Y * speed * (float)delta);
+    }
+
+    private void FinishNudgeIfNeeded()
+    {
+        if (_wasNudging)
+        {
+            _wasNudging = false;
+            LocalGhostHandsRuntime.CommitOffsets();
+        }
     }
 
     public void DisableAndFree()
