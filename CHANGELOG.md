@@ -4,7 +4,12 @@ Notable versions and key changes of `LocalMultiControl` / `DualRoleAdventure`. E
 
 ## [Unreleased]
 
+### Added
+- Optional extra cross-character card group (original author's unfinished v1.30 design): with `"extraCrossCharacterCardReward": true` in `user://dual_role_adventure_settings.json`, each character's post-combat rewards include one extra pick-1-of-3 group drawn from the other characters' card pools. Off by default.
+
 ### Fixed
+- Ghost hands: Ctrl+Arrow repositioning is now polled from raw key state per frame — arrow-key events could be consumed by other UI before reaching the mod (Ctrl+Right did nothing; Workshop report, 2026-08-26). The overlay offset is also clamped to the visible screen on every nudge and on config load, so a position saved off-screen heals itself.
+- Ghost hands settings saves no longer erase settings keys owned by other features (the file is now merged, not rewritten).
 - Silken Tress (and any other one-shot, generation-time reward modifier) losing its effect in multi-character runs (Workshop report, 2026-07-28). Vanilla `CombatRoom.OfferRoomEndRewards` generates every player's `RewardsSet` — running the card-reward modify hooks and burning Silken Tress's one-shot `IsUsed` — before calling `Offer`; the mod's merge patch on `Offer` then discarded those sets and regenerated, so the Glam-enchanted cards existed only on the invisible first pass. The merge point moved up to `CombatRoom.OfferRoomEndRewards` itself (`CombatRoomOfferRewardsPatch`): each set is generated exactly once, the reward RNG no longer advances twice, and `Hook.BeforeCombatRewardOffered` now fires on the sets that are actually displayed (previously it only ran on the discarded ones). The `Offer`/`OfferForRoomEnd` merge patches remain as deduped backstops.
 
 ## [v1.32] - 2026-08-23

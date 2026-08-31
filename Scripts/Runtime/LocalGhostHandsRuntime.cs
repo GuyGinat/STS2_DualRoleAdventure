@@ -188,13 +188,26 @@ internal static class LocalGhostHandsRuntime
     {
         try
         {
-            Godot.Collections.Dictionary settings = new()
+            // Merge over the existing file so keys owned by other features
+            // (e.g. extraCrossCharacterCardReward) survive a ghost-hands save.
+            Godot.Collections.Dictionary settings = new();
+            if (GodotFileAccess.FileExists(ConfigPath))
             {
-                { "ghostHandsEnabled", Enabled },
-                { "ghostHandsOffsetX", OffsetX },
-                { "ghostHandsOffsetY", OffsetY },
-                { "ghostHandsScale", GhostScale }
-            };
+                using GodotFileAccess? existingFile = GodotFileAccess.Open(ConfigPath, GodotFileAccess.ModeFlags.Read);
+                if (existingFile != null)
+                {
+                    Variant parsed = Json.ParseString(existingFile.GetAsText());
+                    if (parsed.VariantType == Variant.Type.Dictionary)
+                    {
+                        settings = parsed.AsGodotDictionary();
+                    }
+                }
+            }
+
+            settings["ghostHandsEnabled"] = Enabled;
+            settings["ghostHandsOffsetX"] = OffsetX;
+            settings["ghostHandsOffsetY"] = OffsetY;
+            settings["ghostHandsScale"] = GhostScale;
 
             using GodotFileAccess? file = GodotFileAccess.Open(ConfigPath, GodotFileAccess.ModeFlags.Write);
             file?.StoreString(Json.Stringify(settings, "  "));

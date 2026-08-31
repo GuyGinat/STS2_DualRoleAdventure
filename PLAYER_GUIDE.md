@@ -45,6 +45,11 @@ Shows your backgrounded characters' hands behind and above your active hand, so 
 - **`Ctrl+Arrows`** — move the display (hold to glide); **`Ctrl+Shift+Arrows`** — fine 4px steps
 - Cards are semi-transparent, click-through, and update as characters draw/play.
 - Settings persist to `%APPDATA%\SlayTheSpire2\dual_role_adventure_settings.json`; edit `ghostHandsScale` (default `0.5`) there to resize the cards.
+- The overlay position is clamped to the visible screen, so it can't get lost off-screen.
+
+## Optional: extra cross-character card rewards
+
+Add `"extraCrossCharacterCardReward": true` to the settings file above and each character's post-combat rewards will include one extra pick-1-of-3 card group drawn from your **other** characters' card pools (off by default).
 
 ## Hotkey reference
 

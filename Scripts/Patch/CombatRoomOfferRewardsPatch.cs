@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using LocalMultiControl.Scripts.Rewards;
 using LocalMultiControl.Scripts.Runtime;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Rewards;
@@ -79,8 +81,10 @@ internal static class CombatRoomOfferRewardsPatch
                 RewardsSet perPlayerSet = await RewardsCmd.GenerateForRoomEnd(player, combatRoom);
                 generatedSets.Add(perPlayerSet);
                 LocalMultiControlLogger.Info(
-                    $"角色独立奖励已生成(RoomEnd): player={player.NetId}, rewardCount={perPlayerSet.Rewards.Count}");
+                    $"Per-character rewards generated (room end): player={player.NetId}, rewardCount={perPlayerSet.Rewards.Count}");
             }
+
+            AddExtraCrossCharacterCardRewards(combatRoom, allPlayers, generatedSets);
 
             // Mirror vanilla: the before-offered hook runs on the sets that will actually be shown.
             List<Reward> mergedRewards = new();
@@ -115,6 +119,52 @@ internal static class CombatRoomOfferRewardsPatch
         finally
         {
             CombatRewardMergeContext.Exit();
+        }
+    }
+
+    /// <summary>
+    /// Optional (settings key "extraCrossCharacterCardReward", default off): each character's
+    /// post-combat rewards gain one extra pick-1-of-3 card group drawn from the OTHER
+    /// characters' card pools — the original author's unfinished v1.30 design. The extra
+    /// CardReward is created for its receiving player directly (the old
+    /// combatRoom.AddExtraReward(otherPlayer, ...) approach parked the reward under the
+    /// wrong player's ExtraRewards key, so it never appeared).
+    /// </summary>
+    private static void AddExtraCrossCharacterCardRewards(CombatRoom combatRoom, List<Player> allPlayers, List<RewardsSet> generatedSets)
+    {
+        if (!LocalModSettings.GetBool("extraCrossCharacterCardReward", defaultValue: false))
+        {
+            return;
+        }
+
+        foreach (RewardsSet perPlayerSet in generatedSets)
+        {
+            Player player = perPlayerSet.Player;
+            List<CardPoolModel> otherPools = allPlayers
+                .Where((candidate) => candidate.NetId != player.NetId && candidate.Creature?.IsDead != true)
+                .Select((candidate) => candidate.Character.CardPool)
+                .Distinct()
+                .ToList();
+            if (otherPools.Count == 0)
+            {
+                continue;
+            }
+
+            try
+            {
+                CardCreationOptions options = CardCreationOptions
+                    .ForRoom(player, combatRoom.RoomType)
+                    .WithCardPools(otherPools);
+                CardReward extraReward = new(options, 3, player);
+                extraReward.Populate();
+                perPlayerSet.Rewards.Add(extraReward);
+                LocalMultiControlLogger.Info(
+                    $"Extra cross-character card group added: player={player.NetId}, pools={otherPools.Count}");
+            }
+            catch (Exception exception)
+            {
+                LocalMultiControlLogger.Warn($"Failed to add extra cross-character card group: player={player.NetId}, error={exception.Message}");
+            }
         }
     }
 }
