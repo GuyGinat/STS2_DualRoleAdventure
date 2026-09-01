@@ -4,6 +4,8 @@ Notable versions and key changes of `LocalMultiControl` / `DualRoleAdventure`. E
 
 ## [Unreleased]
 
+## [v1.33] - 2026-09-01
+
 ### Added
 - Optional extra cross-character card group (original author's unfinished v1.30 design): with `"extraCrossCharacterCardReward": true` in `user://dual_role_adventure_settings.json`, each character's post-combat rewards include one extra pick-1-of-3 group drawn from the other characters' card pools. Off by default.
 

@@ -29,6 +29,6 @@ https://github.com/GuyGinat/STS2_DualRoleAdventure — report bugs via GitHub Is
 
 [h2]中文简介[/h2]
 单人操控 2–12 名角色的本地多控 Mod。进入方式：多人模式 → 创建 → 单人多角色；Tab 切换角色，F8 显示队友手牌。原作者 磁石战士Ω 已授权本条目接手维护（原版条目见上方链接）；反馈请到 GitHub Issues。"
-	"changenote"		"Description update: the mod requires the public-beta branch (v0.111); default-branch players please use the original v1.30 item. 说明更新：本 Mod 需要 public-beta 分支。"
+	"changenote"		"v1.33: Silken Tress (and other one-shot reward relics) fixed; ghost hands Ctrl+Right + off-screen position fixed; optional extra cross-character card rewards (see guide); clean version check for the default branch — the mod needs public-beta (v0.111). 修复丝绸秀发、幽灵手牌问题；新增可选跨角色卡牌奖励；正式版分支将得到明确的版本提示（需 public-beta）。"
 	"publishedfileid"		"3772900244"
 }

@@ -3,6 +3,6 @@
   "name": "Dual Role Adventure",
   "author": "磁石战士Ω",
   "description": "单机本地多角色冒险模式：支持 2 到 12 名角色切换操控并保持关键流程状态同步",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "min_game_version": "0.111.0"
 }
