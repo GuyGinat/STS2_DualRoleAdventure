@@ -6,7 +6,7 @@
 	"visibility"		"0"
 	"title"		"Local Multi-Control — Solo Multiplayer, 2–12 Characters | 本地多角色"
 	"description"		"[h1]Local Multi-Control (DualRoleAdventure)[/h1]
-[b]⚠ Requires the game's public-beta branch (v0.111).[/b] Right-click the game in Steam → Properties → Betas → select [i]public-beta[/i]. On the default branch the mod cannot load (you'd see a "reflection type" error — your saves are NOT deleted, they reappear on the matching version). Default-branch players can use the original item (v1.30) linked below.
+[b]⚠ Requires the game's public-beta branch (v0.111).[/b] Right-click the game in Steam → Properties → Betas → select [i]public-beta[/i]. On the default branch the mod cannot load (you'd see a 'reflection type' error — your saves are NOT deleted, they reappear on the matching version). Default-branch players can use the original item (v1.30) linked below.
 [b]⚠ 需要游戏 public-beta 测试分支（v0.111）[/b]：Steam 右键游戏 → 属性 → 测试版 → 选择 public-beta。正式版分支无法加载本 Mod（存档不会丢失）。正式版玩家可使用下方链接的原版条目（v1.30）。
 
 Play Slay the Spire 2's official multiplayer entirely by yourself: control 2–12 characters on one machine, switching between them freely. No network and no second player — the real multiplayer rules run underneath, so decks, energy, gold, potions, relics, and choices all stay separate per character.
